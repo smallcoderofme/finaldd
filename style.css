@@ -1,0 +1,28 @@
+.Site {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.Site-content {
+    flex: 1;
+}
+
+.point {
+    cursor: pointer;
+}
+
+video {
+    margin: 10px;
+}
+
+#mask {
+    background: white;
+    width: auto;
+    height: 100%;
+}
+
+.blank {
+    min-height: 5rem;
+}

@@ -2,9 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0"/>
     <title>index</title>
+    <link rel="stylesheet" type="text/css" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
-<body>
-    <p>Hello World</p>
+<body class="Site">
+    <div class="row Site-content">
+    </div>
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script>
+        $(function () {
+            $.ajax({url: '/list',
+                type: 'GET',
+                success: function(data) {
+                    render(data.data);
+                }
+            });
+        });
+        function render(data) {
+            var containter = document.querySelector("div.row.Site-content");
+            var leng = data.length;
+            // var isEven = leng%2==0?true:false;
+            var elements = '';
+            for (var i=0; i< leng; i++) {
+                elements += `<div class="col-md-6 text-center">
+							<a onclick="detail(`+data[i].uuid+`)" class="btn btn-primary btn-lg">`+ data[i].name +`</a>
+						</div>`;
+            }
+            if (leng == 0) {
+                elements += `<div class="col-md-12 text-center">
+						还未添加任何展示介绍
+					</div>`;
+            }
+            containter.innerHTML = elements;
+            document.querySelectorAll("script").forEach(function(e){ e.parentNode.removeChild(e); });
+        }
+    </script>
 </body>
 </html>
