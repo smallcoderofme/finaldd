@@ -20,23 +20,25 @@
                 }
             });
         });
+        function enter(uuid) {
+            console.log("home menu uuid: ", uuid);
+            location.href = location.origin + '/menu/' + uuid;
+        }
         function render(data) {
             var containter = document.querySelector("div.row.Site-content");
             var leng = data.length;
             // var isEven = leng%2==0?true:false;
             var elements = '';
             for (var i=0; i< leng; i++) {
-                elements += `<div class="col-md-6 text-center">
-							<a onclick="detail(`+data[i].uuid+`)" class="btn btn-primary btn-lg">`+ data[i].name +`</a>
-						</div>`;
+                elements += `<div class="col-md-6 text-center"><a onclick="enter(`
+                    + '\''+ data[i]['uuid'] + '\''+
+                    `)" class="btn btn-primary btn-lg text-white">`+ data[i]['name'] +`</a></div>`;
             }
             if (leng == 0) {
-                elements += `<div class="col-md-12 text-center">
-						还未添加任何展示介绍
-					</div>`;
+                elements += `<div class="col-md-12 text-center">还未添加任何展示介绍</div>`;
             }
             containter.innerHTML = elements;
-            document.querySelectorAll("script").forEach(function(e){ e.parentNode.removeChild(e); });
+            // document.querySelectorAll("script").forEach(function(e){ e.parentNode.removeChild(e); });
         }
     </script>
 </body>

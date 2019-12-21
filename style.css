@@ -26,3 +26,7 @@ video {
 .blank {
     min-height: 5rem;
 }
+
+.unselect {
+    user-select: none;
+}
