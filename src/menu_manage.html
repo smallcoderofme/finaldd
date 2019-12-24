@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0"/>
+    <title>index</title>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <link href="../font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="../font-awesome-4.7.0/fonts/fontawesome-webfont.woff" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body class="Site">
+    <div class="row Site-content">
+        <div class="col-md-3">
+        </div>
+    </div>
+    <div class="modal fade" id="create" data-backdrop="static" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">添加新的主菜单</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="new_menu">新的主菜单名称：</label>
+                            <input type="text" class="form-control" id="new_menu" aria-describedby="emailHelp">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="onAddMenu();">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modify" data-backdrop="static" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">修改主菜单</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="modify_menu">修改主菜单名称：</label>
+                            <input type="text" class="form-control" id="modify_menu" aria-describedby="emailHelp">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="onModifyMenu();">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="delete" data-backdrop="static" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">删除主菜单</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="delete_menu">确定要删除此主菜单吗？</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="onDeleteMenu();">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var data;
+        $(function () {
+            get_data();
+        });
+
+        function openModify(uuid) {
+            console.log('------',uuid);
+            let len = data.length;
+            let value = '';
+            for (let i =0;i<len;i++) {
+                if (data[i].uuid == uuid) {
+                    value = data[i].name;
+                    break;
+                }
+            }
+            $('#modify').on('show.bs.modal', function (e) {
+                console.log(value);
+                let ele = document.querySelector('#modify_menu');
+                    ele.value = value;
+                ele.setAttribute('data-id',uuid);
+
+            });
+            $('#modify').modal('show');
+        }
+        function onModifyMenu() {
+            let ele = document.querySelector('#modify_menu');
+            let id = ele.getAttribute('data-id');
+            const value = ele.value.trim().replace(' ','');
+            if (value.length) {
+                $.ajax({url: '/modify_menu',
+                    type: 'POST',
+                    data: { data: value, uuid: id},
+                    success: function(res) {
+                        $('#modify').modal('hide');
+                        if (res.status === 'ok') {
+                            data = res.data;
+                            render();
+                        }
+                    },
+                    error: function(error) {
+                        alert("保存数据出错！");
+                        $('#modify').modal('hide');
+                    }
+                });
+            }
+        }
+
+        function openDelete(uuid) {
+            $('#delete').on('show.bs.modal', function (e) {
+                let ele = document.querySelector('#delete_menu');
+                ele.setAttribute('data-id',uuid);
+
+            });
+            $('#delete').modal('show');
+        }
+
+        function onDeleteMenu() {
+            let ele = document.querySelector('#delete_menu');
+            let uuid = ele.getAttribute('data-id');
+            $.ajax({url: '/delete_menu',
+                type: 'POST',
+                data: { uuid: uuid},
+                success: function(res) {
+                    $('#delete').modal('hide');
+                    if (res.status === 'ok') {
+                        data = res.data;
+                        render();
+                    }
+                },
+                error: function(error) {
+                    alert("删除数据出错！");
+                    $('#delete').modal('hide');
+                }
+            });
+        }
+
+        function get_data() {
+            $.ajax({url: '/list',
+                type: 'GET',
+                success: function(res) {
+                    data = res.data;
+                    render();
+                }
+            });
+        }
+        function toggle(index) {
+            console.log(index);
+            let id = '#sub_menu' + index;
+            let icon = '#icon' + index;
+            let parent = document.querySelector(id);
+            if (parent.innerHTML.length) {
+                parent.innerHTML='';
+                document.querySelector(icon).innerHTML = '<i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i>';
+                return;
+            }
+            let currData = data[index].sub;
+            let leng = currData.length;
+            if (leng == 0) {
+                document.querySelector(icon).innerHTML = '<i class="fa fa-minus-square-o mr-3" aria-hidden="true"></i>';
+                parent.innerHTML = `<div class="mb-2 mt-2 ml-5 text-dark"><small>当前新菜单下没有任何子内容</small></div>`;
+                return;
+            }
+            let subELe = '';
+            for (let i =0;i < leng; i++) {
+                subELe += `<div class="mb-2 mt-2 ml-5 h5 text-primary point" onclick="select_page(`
+                    + '\''+ currData[i]['uuid'] + '\''+
+                    `);">`+ currData[i].name +`</div>`;
+            }
+            document.querySelector(icon).innerHTML = '<i class="fa fa-minus-square-o mr-3" aria-hidden="true"></i>';
+            parent.innerHTML = subELe;
+        }
+        function onAddMenu() {
+            const value = document.querySelector('#new_menu').value.trim().replace(' ','');
+            if (value.length) {
+                $.ajax({url: '/post_menu',
+                    type: 'POST',
+                    data: { data: value },
+                    success: function(res) {
+                        $('#create').modal('hide');
+                        if (res.status === 'ok') {
+                            data = res.data;
+                            render();
+                        }
+                    },
+                    error: function(error) {
+                        alert("保存数据出错！");
+                    }
+                });
+            }
+        }
+
+        function select_page(pid) {
+            console.log('page id: ', pid);
+        }
+        // function add_new_main() {
+        //   data-toggle="modal" data-target="#modify"
+        //   data-toggle="modal" data-target="#delete"
+        // }
+
+        function create_sub(uuid) {
+            console.log('sub -----------:', uuid);
+            $.ajax({url: '/post_sub_menu',
+                type: 'POST',
+                data: { data: value },
+                success: function(res) {
+                    $('#create').modal('hide');
+                    if (res.status === 'ok') {
+                        data = res.data;
+                        render();
+                    }
+                },
+                error: function(error) {
+                    alert("保存数据出错！");
+                }
+            });
+        }
+
+        function render() {
+            let containter = document.querySelector("div.col-md-3");
+            let elements = '<ul class="list-group">';
+            let leng = data.length;
+            for (let i =0;i < leng; i++) {
+                elements += `<li id="menu`+ i +`" class="list-group-item unselect list-group-item-primary point">
+                                <span class="ml-2 mr-2 h4" onclick="toggle(`+ i +`);"><span id="icon`+i +`">
+                                <i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i></span>`+ data[i].name +
+                    `</span><i class="fa fa-edit ml-3" onclick="openModify(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                                <i class="fa fa-trash-o ml-3" aria-hidden="true" onclick="openDelete(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                                <i class="fa fa-plus ml-3" aria-hidden="true" onclick="create_sub(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                                <div id="sub_menu`+ i +`"></div></li>`;
+            }
+            elements += '<li class="h4 list-group-item unselect list-group-item-primary point">' +
+                '<span class="text-success" data-toggle="modal" data-target="#create">添加新的主菜单</span></li></ul>';
+            containter.innerHTML = elements;
+            // document.querySelectorAll("script").forEach(function(e){ e.parentNode.removeChild(e); });
+        }
+    </script>
+</body>
+</html>

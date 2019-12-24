@@ -120,7 +120,7 @@ var data = [
 ]
 
 app.get('/', (req, res) => {
-   res.sendFile(__dirname + 'index.html');
+   res.sendFile(__dirname + '/src/index.html');
 });
 
 app.get('/list', (req, res) => {
@@ -129,21 +129,57 @@ app.get('/list', (req, res) => {
 
 app.get('/menu/:uuid', function(req, res) {
     if (req.params.uuid && verify_main_uuid(req.params.uuid)){
-        res.sendFile(__dirname + '/level2.html');
+        res.sendFile(__dirname + '/src/level2.html');
     } else {
         console.log('params error');
-        res.sendFile(__dirname + '/404.html');
+        res.sendFile(__dirname + '/src/404.html');
         res.end();
     }
 });
 app.get('/admin', function (req, res) {
-    res.sendFile(__dirname + '/login.html');
+    res.sendFile(__dirname + '/src/login.html');
+});
+
+app.post('/post_menu', function (req, res) {
+    let new_menu = req.body.data;
+    // let tempObj = JSON.stringify({
+    //     name: new_menu,
+    //     uuid: uuidv4(),
+    //     sub: []
+    // });
+    data.push({
+        name: new_menu,
+        uuid: uuidv4(),
+        sub: []
+    });
+    res.send({status: 'ok', data:data});
+});
+app.post('/modify_menu', function (req, res) {
+    const len = data.length;
+    const tempName = req.body.data;
+    const id = req.body.uuid;
+    for (let i =0;i<len;i++) {
+        if (data[i].uuid == id) {
+            data[i].name = tempName;
+        }
+    }
+    res.send({status: 'ok', data:data});
+});
+
+app.post('/delete_menu', function (req, res) {
+    const len = data.length;
+    const id = req.body.uuid;
+    for (let i =0;i<len;i++) {
+        if (data[i].uuid == id) {
+            data.splice(i,1);
+        }
+    }
+    res.send({status: 'ok', data:data});
 });
 
 app.post('/auth/login', function (req, res) {
     const username = req.body.username;
     const password = req.body.password;
-    // console.log(username , admin_user.username, password , admin_user.password);
     if (username == admin_user.username && password == admin_user.password) {
         let sess = {username: username, password: password}
         let token = session_manage(sess);
@@ -157,11 +193,21 @@ app.post('/auth/login', function (req, res) {
 
 app.get('/edit', function(req, res) {
     if(verify_token(req.query.token)){
-        res.sendFile(__dirname + '/menu_manage.html');
+        res.sendFile(__dirname + '/src/menu_manage.html');
     } else {
-        res.sendFile(__dirname + '/login.html');
+        res.sendFile(__dirname + '/src/login.html');
     }
 
+});
+
+app.post('/post_sub_menu', function (req, res) {
+    let new_menu = req.body.data;
+    data.push({
+        name: new_menu,
+        uuid: uuidv4(),
+        sub: []
+    });
+    res.send({status: 'ok', data:data});
 });
 
 app.listen(3000, function () {
@@ -171,7 +217,7 @@ app.listen(3000, function () {
 function pages_config_json_add(page_data) {
     fs.readFile('page.config.json', 'utf8', (err, data) => {
         if (err) {
-            res.sendFile(__dirname + '500.html');
+            res.sendFile(__dirname + '/src500.html');
             console.log('page config error!');
         }
         var new_data = JSON.parse(data);
