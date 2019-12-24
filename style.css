@@ -9,10 +9,6 @@
     flex: 1;
 }
 
-.point {
-    cursor: pointer;
-}
-
 video {
     margin: 10px;
 }
@@ -29,4 +25,36 @@ video {
 
 .unselect {
     user-select: none;
+}
+body {
+    padding: 20px;
+}
+
+.sample {
+    padding-bottom: 50px;
+    margin-left: 20px;
+    margin-right: 20px;
+    /*border-top: 1px solid lightgray;*/
+}
+
+.manual {
+    margin-bottom: 20px;
+}
+
+.content {
+    height: 100vh;
+}
+
+.point {
+    cursor: pointer;
+}
+
+video {
+    margin: 10px;
+}
+
+#mask {
+    background: white;
+    width: auto;
+    height: 100%;
 }

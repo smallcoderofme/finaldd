@@ -189,7 +189,7 @@
             let subELe = '';
             for (let i =0;i < leng; i++) {
                 subELe += `<div class="mb-2 mt-2 ml-5 h5 text-primary point" onclick="select_page(`
-                    + '\''+ currData[i]['uuid'] + '\''+
+                    + index + `,` + '\''+ currData[i]['uuid'] + '\''+
                     `);">`+ currData[i].name +`</div>`;
             }
             document.querySelector(icon).innerHTML = '<i class="fa fa-minus-square-o mr-3" aria-hidden="true"></i>';
@@ -215,30 +215,20 @@
             }
         }
 
-        function select_page(pid) {
-            console.log('page id: ', pid);
+        function select_page(index, cid) {
+            console.log('page id: ',index, cid);
+            let pid = document.querySelector('#sub_menu' + index).getAttribute('data-id');
+            console.log('pid:', pid);
+            location.href = location.origin + '/menu/'+pid+'/content/' + cid;
         }
-        // function add_new_main() {
-        //   data-toggle="modal" data-target="#modify"
-        //   data-toggle="modal" data-target="#delete"
-        // }
 
         function create_sub(uuid) {
-            console.log('sub -----------:', uuid);
-            $.ajax({url: '/post_sub_menu',
-                type: 'POST',
-                data: { data: value },
-                success: function(res) {
-                    $('#create').modal('hide');
-                    if (res.status === 'ok') {
-                        data = res.data;
-                        render();
-                    }
-                },
-                error: function(error) {
-                    alert("保存数据出错！");
-                }
-            });
+            let token = get_token();
+            if (token) {
+                location.href = location.origin + '/create_content?token=' + token + '&pid=' + uuid;
+            } else {
+                alert('auth error');
+            }
         }
 
         function render() {
@@ -252,12 +242,16 @@
                     `</span><i class="fa fa-edit ml-3" onclick="openModify(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
                                 <i class="fa fa-trash-o ml-3" aria-hidden="true" onclick="openDelete(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
                                 <i class="fa fa-plus ml-3" aria-hidden="true" onclick="create_sub(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
-                                <div id="sub_menu`+ i +`"></div></li>`;
+                                <div id="sub_menu`+ i +`" data-id="`+ data[i]['uuid'] +`"></div></li>`;
             }
             elements += '<li class="h4 list-group-item unselect list-group-item-primary point">' +
                 '<span class="text-success" data-toggle="modal" data-target="#create">添加新的主菜单</span></li></ul>';
             containter.innerHTML = elements;
             // document.querySelectorAll("script").forEach(function(e){ e.parentNode.removeChild(e); });
+        }
+
+        function get_token() {
+            return sessionStorage.getItem('xyshow');
         }
     </script>
 </body>
