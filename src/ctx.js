@@ -1,6 +1,6 @@
 function list() {
     let index = location.href.indexOf('/content');
-    var back = location.href.substring(0,index);
+    let back = location.href.substring(0,index);
     window.location.href = back;
 }
 $(function () {
