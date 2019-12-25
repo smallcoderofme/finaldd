@@ -1,4 +1,4 @@
-const tpl_next = `</div></div></div></div><div class="col-md-2"></div></div></body></html>`;
+const tpl_next = `</div></div></div></div><div class="col-md-2"></div></div><script src="../../../src/ctx.js"></script></body></html>`;
 const tpl_pre = `<!DOCTYPE html><html><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0">
@@ -66,7 +66,7 @@ const tpl_pre = `<!DOCTYPE html><html><head>
     <div class="col-md-2">
       <button type="button" data-toggle="tooltip" 
             title="返回列表"  class="btn btn-outline-success btn-sm" onclick="list();"><</button></div>
-    <div class="col-md-8">
+    <div class="col-md-8 scroll_ctx">
       <div class="fr-box fr-basic fr-top" role="application">
         <div class="fr-wrapper" style="border: 1px solid #CCCCCC;" dir="auto">
         <div class="fr-element fr-view" dir="auto" aria-disabled="false" spellcheck="true">`;

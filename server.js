@@ -42,9 +42,9 @@ function write_config() {
 }
 
 
-app.get('/test', (req, res) => {
-    res.sendFile(__dirname + '/test.html');
-});
+// app.get('/test', (req, res) => {
+//     res.sendFile(__dirname + '/test.html');
+// });
 
 app.get('/', (req, res) => {
    res.sendFile(__dirname + '/src/index.html');

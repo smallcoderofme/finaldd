@@ -28,6 +28,7 @@ video {
 }
 body {
     padding: 20px;
+    overflow: hidden;
 }
 
 .sample {
@@ -57,4 +58,8 @@ video {
     background: white;
     width: auto;
     height: 100%;
+}
+.scroll_ctx {
+    height: 100vh;
+    overflow-y: overlay;
 }
