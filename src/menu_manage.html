@@ -123,6 +123,8 @@
                     if (res.status === 'ok') {
                         data = res.data;
                         render();
+                    } else {
+                        get_data();
                     }
                 },
                 error: function(error) {

@@ -7,9 +7,26 @@
         <link rel="stylesheet" type="text/css" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
         <script src="../node_modules/jquery/dist/jquery.min.js"></script>
         <link rel="stylesheet" type="text/css" href="../style.css">
+        <style>
+            .img_btn {
+                background: url(../assets/btnBg.png);
+                background-size: 14rem;
+                width: 14rem;
+                height: 4.75rem;
+                border: none;
+            }
+            .img_home {
+                background: url(../assets/img_Home.png);
+                background-size: 8rem;
+                width: 8rem;
+                height: 8rem;
+                border: none;
+            }
+        </style>
     </head>
-    <body class="Site">
-        <div class="row Site-content">
+    <body>
+        <img id="background_img" src="../assets/bg.jpg" style="position:absolute; top: 0; left: 0; width: 100%; height: 100%;z-index: -99999;">
+        <div class="row">
         </div>
         <script>
             $(function () {
@@ -25,16 +42,21 @@
                     }
                 });
             });
-
+            function back() {
+                location.href = location.origin;
+            }
             function  render(data) {
-                var containter = document.querySelector("div.row.Site-content");
+                var containter = document.querySelector("div.row");
                 var leng = data.length;
                 var elements = '';
                 for (var i=0; i< leng; i++) {
-                    elements += `<div class="col-md-6 text-center"><a onclick="detail(`
+                    elements += `<div class="col-md-6 text-center mt-5 mb-5"><button onclick="detail(`
                         + '\''+ data[i]['uuid'] + '\''+
-                        `)" class="btn btn-primary btn-lg text-white">`+ data[i]['name'] +`</a></div>`;
+                        `)" class="btn btn-primary btn-lg text-white img_btn">`+ data[i]['name'] +`</button></div>`;
                 }
+                elements += `<div class="col-md-12 text-center mt-5 mb-5">
+                                    <button onclick="back();" class="text-white font-weight-bold img_home"></button>
+                                </div>`;
                 if (leng == 0) {
                     elements += `<div class="col-md-12 text-center">还未添加任何展示介绍</div>`;
                 }
@@ -42,7 +64,7 @@
                 // document.querySelectorAll("script").forEach(function(e){ e.parentNode.removeChild(e); });
             }
             function detail(uuid) {
-                console.log("sub menu uuid: ", uuid);
+                // console.log("sub menu uuid: ", uuid);
                 let pid = location.pathname.substr(6);
                 location.href = location.origin + '/menu/'+pid+'/content/' + uuid;
             }

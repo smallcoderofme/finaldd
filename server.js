@@ -37,9 +37,14 @@ function write_config() {
             throw err;
         };
         console.log('The config file has been saved!');
+        read_config();
     });
 }
 
+
+app.get('/test', (req, res) => {
+    res.sendFile(__dirname + '/test.html');
+});
 
 app.get('/', (req, res) => {
    res.sendFile(__dirname + '/src/index.html');
@@ -91,12 +96,32 @@ app.post('/modify_menu', function (req, res) {
     res.send({status: 'ok', data:data_config});
 });
 
+function delete_file(file, res) {
+    fs.stat(file, function(err, stats){
+        if(err){
+            console.log('stats:',err);
+            // throw err;
+            res.send({status:'error', data: 'file not exist'});
+        }else{
+            console.log('stats:',stats);
+            fs.unlink(file, (err) => {
+                if (err) throw err;
+                console.log(file + ' was deleted');
+            });
+        }
+    });
+
+}
+
 app.post('/delete_menu', function (req, res) {
     const len = data_config.length;
     const id = req.body.uuid;
     for (let i =0;i<len;i++) {
         if (data_config[i].uuid == id) {
-            data_config.splice(i,1);
+            let del_list = data_config.splice(i,1)[0].sub;
+            for (let file of del_list) {
+                delete_file('pages/'+file.uuid + '.html', res);
+            }
         }
     }
     write_config();
@@ -205,7 +230,23 @@ app.post('/delete/:pid/:cid', function (req, res) {
             }
         }
     }
-    res.send({status:'ok', data: data_config});
+    write_config();
+    const file_name = 'pages/' + cid + '.html';
+    fs.stat(file_name, function(err, stats){
+        if(err){
+            console.log('stats err:',err);
+            res.send({status:'error', data: 'file not exist'});
+            // throw err;
+        }else{
+            fs.unlink(file_name, (err) => {
+                if (err) throw err;
+                console.log(file_name + ' was deleted');
+                // res.send({ status:'success'});
+                res.send({status:'ok', data: data_config});
+            });
+        }
+    });
+
 });
 app.get('/modify', function (req, res) {
     if(verify_token(req.query.token)){
@@ -454,7 +495,7 @@ function verify_token(token) {
 }
 
 function verify_main_uuid(uuid) {
-    for (let menu of data) {
+    for (let menu of data_config) {
         if (menu.uuid === uuid) {
             return true;
         }
