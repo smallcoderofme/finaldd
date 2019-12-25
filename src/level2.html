@@ -43,6 +43,8 @@
             }
             function detail(uuid) {
                 console.log("sub menu uuid: ", uuid);
+                let pid = location.pathname.substr(6);
+                location.href = location.origin + '/menu/'+pid+'/content/' + uuid;
             }
         </script>
     </body>

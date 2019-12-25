@@ -13,7 +13,7 @@
 </head>
 <body class="Site">
     <div class="row Site-content">
-        <div class="col-md-3">
+        <div class="col-md-12">
         </div>
     </div>
     <div class="modal fade" id="create" data-backdrop="static" tabindex="-1" role="dialog">
@@ -83,11 +83,65 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="delete_sub" data-backdrop="static" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">删除子菜单</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="delete_sub_menu">确定要删除此主菜单吗？</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="onDeleteSubMenu();">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         var data;
         $(function () {
             get_data();
         });
+        function onDeleteSubMenu() {
+            let ele = document.querySelector('#delete_sub_menu');
+            let pid = ele.getAttribute('p-id');
+            let cid = ele.getAttribute('c-id');
+
+            console.log('pid:', pid, 'cid:', cid);
+            $.ajax({url: '/delete/'+pid+'/' + cid,
+                type: 'POST',
+                data: {},
+                success: function(res) {
+                    $('#delete_sub').modal('hide');
+                    if (res.status === 'ok') {
+                        data = res.data;
+                        render();
+                    }
+                },
+                error: function(error) {
+                    alert("保存数据出错！");
+                }
+            });
+        }
+        function delete_content(index, cid) {
+            $('#delete_sub').on('show.bs.modal', function (e) {
+                let pid = data[index].uuid;
+                let tip = "确定要删除《" + get_menu_name(pid, cid) + "》吗?";
+
+                let ele = document.querySelector('#delete_sub_menu');
+                ele.innerHTML = tip;
+                ele.setAttribute('p-id',pid);
+                ele.setAttribute('c-id',cid);
+            });
+            $('#delete_sub').modal('show');
+        }
 
         function openModify(uuid) {
             console.log('------',uuid);
@@ -131,9 +185,33 @@
             }
         }
 
+        function get_menu_name(uuid, cid = null) {
+            if (!cid) {
+                for (let parent of data) {
+                    if (parent.uuid == uuid) {
+                        return parent.name;
+                    }
+                }
+            } else {
+                for (let parent of data) {
+                    if (parent.uuid == uuid) {
+                        for (let child of parent.sub) {
+                            if (child.uuid == cid) {
+                                return child.name;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         function openDelete(uuid) {
             $('#delete').on('show.bs.modal', function (e) {
+                console.log('get_menu_name();', get_menu_name(uuid));
+                let tip = "确定要删除《" + get_menu_name(uuid) + "》吗?";
+
                 let ele = document.querySelector('#delete_menu');
+                ele.innerHTML = tip;
                 ele.setAttribute('data-id',uuid);
 
             });
@@ -169,6 +247,7 @@
                 }
             });
         }
+
         function toggle(index) {
             console.log(index);
             let id = '#sub_menu' + index;
@@ -188,9 +267,7 @@
             }
             let subELe = '';
             for (let i =0;i < leng; i++) {
-                subELe += `<div class="mb-2 mt-2 ml-5 h5 text-primary point" onclick="select_page(`
-                    + index + `,` + '\''+ currData[i]['uuid'] + '\''+
-                    `);">`+ currData[i].name +`</div>`;
+                subELe += `<div class="mb-2 mt-2 ml-5 point border-bottom border-dark"><span class="h5 text-primary" onclick="select_page(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`)">`+ currData[i].name +`</span><i class="fa fa-edit ml-5 pull-right" onclick="modify_content(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`);"></i><i class="fa fa-trash-o ml-5 pull-right" onclick="delete_content(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`);"></i></div>`;
             }
             document.querySelector(icon).innerHTML = '<i class="fa fa-minus-square-o mr-3" aria-hidden="true"></i>';
             parent.innerHTML = subELe;
@@ -216,10 +293,17 @@
         }
 
         function select_page(index, cid) {
-            console.log('page id: ',index, cid);
             let pid = document.querySelector('#sub_menu' + index).getAttribute('data-id');
-            console.log('pid:', pid);
             location.href = location.origin + '/menu/'+pid+'/content/' + cid;
+        }
+        function modify_content(index, cid) {
+            let token = get_token();
+            if (token) {
+                let pid = document.querySelector('#sub_menu' + index).getAttribute('data-id');
+                location.href = location.origin + '/modify?token=' + token + '&pid=' + pid + '&cid=' + cid;
+            } else {
+                alert('auth error');
+            }
         }
 
         function create_sub(uuid) {
@@ -232,16 +316,16 @@
         }
 
         function render() {
-            let containter = document.querySelector("div.col-md-3");
+            let containter = document.querySelector("div.col-md-12");
             let elements = '<ul class="list-group">';
             let leng = data.length;
             for (let i =0;i < leng; i++) {
                 elements += `<li id="menu`+ i +`" class="list-group-item unselect list-group-item-primary point">
                                 <span class="ml-2 mr-2 h4" onclick="toggle(`+ i +`);"><span id="icon`+i +`">
                                 <i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i></span>`+ data[i].name +
-                    `</span><i class="fa fa-edit ml-3" onclick="openModify(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
-                                <i class="fa fa-trash-o ml-3" aria-hidden="true" onclick="openDelete(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
-                                <i class="fa fa-plus ml-3" aria-hidden="true" onclick="create_sub(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                    `</span><i class="fa fa-edit ml-5 pull-right" onclick="openModify(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                                <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                                <i class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="create_sub(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
                                 <div id="sub_menu`+ i +`" data-id="`+ data[i]['uuid'] +`"></div></li>`;
             }
             elements += '<li class="h4 list-group-item unselect list-group-item-primary point">' +
