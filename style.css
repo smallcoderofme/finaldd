@@ -63,3 +63,8 @@ video {
     height: 100vh;
     overflow-y: overlay;
 }
+
+.login-bg {
+    background-image: url("../assets/loginBg.png");
+    background-size: cover;
+}
