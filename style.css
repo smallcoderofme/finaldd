@@ -68,3 +68,20 @@ video {
     background-image: url("../assets/loginBg.png");
     background-size: cover;
 }
+
+.img_btn {
+     background: url(../assets/btnBg.png);
+     background-size: 28rem;
+     width: 28rem;
+     height: 9.5rem;
+     border: none;
+     font-size: 3.5rem;
+ }
+
+.img_home {
+    background: url(../assets/img_Home.png);
+    background-size: 16rem;
+    width: 16rem;
+    height: 16rem;
+    border: none;
+}

@@ -1,2 +1,1 @@
-﻿pm2 stop server
-pm2 start server
+﻿pm2 start server.js
