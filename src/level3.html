@@ -57,22 +57,22 @@
     function detail(uuid) {
         console.log("sub menu uuid: ", uuid);
         let pid = location.pathname.substr(6);
-        // let select_data;
-        // for (let d of curr_data) {
-        //     if (d.uuid == uuid) {
-        //         select_data = d;
-        //         break;
-        //     }
-        // }
-        // if (select_data) {
-        //     if (select_data.sub && select_data.sub.length) {
-        //         location.href = location.origin + '/menu/'+pid+'/level2/' + uuid;
-        //     } else {
-        //         location.href = location.origin + '/menu/'+pid+'/content/' + uuid;
-        //     }
-        // } else {
-        //     alert("数据错误！");
-        // }
+        let select_data;
+        for (let d of curr_data) {
+            if (d.uuid == uuid) {
+                select_data = d;
+                break;
+            }
+        }
+        if (select_data) {
+            if (select_data.sub && select_data.sub.length) {
+                location.href = location.pathname + '/level3/' + uuid;
+            } else {
+                location.href = location.pathname + '/c/' + uuid;
+            }
+        } else {
+            alert("数据错误！");
+        }
     }
     function getScreenState() {
         if(window.innerHeight !== undefined){

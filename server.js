@@ -222,10 +222,19 @@ app.get('/menu/:uuid/content/:cid', function(req, res) {
     // res.send({status:'ok', data:{pid: req.params.uuid, cid:req.params.cid}});
     res.sendFile(__dirname + '/pages/' + req.params.cid + '.html');
 });
-
+/**----------------------------------------------------------*/
 app.get('/menu/:oid/level2/:tid', function(req, res) {
     res.sendFile(__dirname + '/src/level3.html');
 });
+
+app.get('/menu/:oid/level2/:tid/c/:cid', function(req, res) {
+     res.sendFile(__dirname + '/pages/' + req.params.cid + '.html');
+});
+
+app.get('/menu/:oid/level2/:tid/level3/:sid/c/:cid', function(req, res) {
+    res.sendFile(__dirname + '/pages/' + req.params.cid + '.html');
+});
+
 app.get('/json/:oid/level2/:tid', function(req, res) {
     const oid = req.params.oid;
     const cid = req.params.tid;
@@ -246,6 +255,41 @@ app.get('/json/:oid/level2/:tid', function(req, res) {
     }
     res.send({status:"ok", data:res_data});
 });
+
+// app.get('/menu/:uuid/content/:cid', function(req, res) {
+//     // res.send({status:'ok', data:{pid: req.params.uuid, cid:req.params.cid}});
+//     res.sendFile(__dirname + '/pages/' + req.params.cid + '.html');
+// });
+
+app.get('/menu/:oid/level2/:tid/level3/:sid', function(req, res) {
+    res.sendFile(__dirname + '/src/level4.html');
+});
+
+app.get('/json/:oid/level2/:tid/level3/:sid', function(req, res) {
+    const oid = req.params.oid;
+    const cid = req.params.tid;
+    const sid = req.params.sid;
+    const len = data_config.length;
+    let res_data = [];
+    loop: for (let i = 0; i < len; i++) {
+        if (data_config[i].uuid == oid) {
+            let parent = data_config[i];
+            for (let sub of parent.sub) {
+                if (sub.uuid == cid) {
+                   for (let ssc of sub.sub) {
+                       if (sid == ssc.uuid) {
+                           res_data = ssc.sub;
+                           break loop;
+                       }
+                   }
+                }
+            }
+        }
+    }
+    res.send({status:"ok", data:res_data});
+});
+
+/**----------------------------------------------------------*/
 app.post('/delete/:pid/:cid', function (req, res) {
     const pid = req.params.pid;
     const cid = req.params.cid;
