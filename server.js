@@ -22,7 +22,7 @@ var session = [];
 var data_config;
 read_config();
 function read_config() {
-    fs.readFile('config.json', 'utf8', (err, data) => {
+    fs.readFile('data.json', 'utf8', (err, data) => {
         if (err) {
             throw err;
         }
@@ -32,7 +32,7 @@ function read_config() {
 }
 
 function write_config() {
-    fs.writeFile('config.json', JSON.stringify(data_config), (err) => {
+    fs.writeFile('data.json', JSON.stringify(data_config), (err) => {
         if (err) {
             throw err;
         };
@@ -46,14 +46,14 @@ function write_config() {
 //     res.sendFile(__dirname + '/test.html');
 // });
 
-// app.all('*', function(req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//     res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-//     res.header("X-Powered-By",' 3.2.1')
-//     res.header("Content-Type", "application/json;charset=utf-8");
-//     next();
-// });
+app.all('*', function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+    res.header("X-Powered-By", 'v3.2.1')
+    // res.header("Content-Type", "application/json;charset=utf-8");
+    next();
+});
 
 app.get('/', (req, res) => {
    res.sendFile(__dirname + '/src/index.html');
@@ -222,7 +222,74 @@ app.get('/menu/:uuid/content/:cid', function(req, res) {
     // res.send({status:'ok', data:{pid: req.params.uuid, cid:req.params.cid}});
     res.sendFile(__dirname + '/pages/' + req.params.cid + '.html');
 });
+/**----------------------------------------------------------*/
+app.get('/menu/:oid/level2/:tid', function(req, res) {
+    res.sendFile(__dirname + '/src/level3.html');
+});
 
+app.get('/menu/:oid/level2/:tid/c/:cid', function(req, res) {
+     res.sendFile(__dirname + '/pages/' + req.params.cid + '.html');
+});
+
+app.get('/menu/:oid/level2/:tid/level3/:sid/c/:cid', function(req, res) {
+    res.sendFile(__dirname + '/pages/' + req.params.cid + '.html');
+});
+
+app.get('/json/:oid/level2/:tid', function(req, res) {
+    const oid = req.params.oid;
+    const cid = req.params.tid;
+    const len = data_config.length;
+    let res_data = [];
+    loop: for (let i = 0; i < len; i++) {
+        if (data_config[i].uuid == oid) {
+            let parent = data_config[i];
+            for (let sub of parent.sub) {
+                if (sub.uuid == cid) {
+                    if (sub.sub && sub.sub.length) {
+                        res_data = sub.sub;
+                        break loop;
+                    }
+                }
+            }
+        }
+    }
+    res.send({status:"ok", data:res_data});
+});
+
+// app.get('/menu/:uuid/content/:cid', function(req, res) {
+//     // res.send({status:'ok', data:{pid: req.params.uuid, cid:req.params.cid}});
+//     res.sendFile(__dirname + '/pages/' + req.params.cid + '.html');
+// });
+
+app.get('/menu/:oid/level2/:tid/level3/:sid', function(req, res) {
+    res.sendFile(__dirname + '/src/level4.html');
+});
+
+app.get('/json/:oid/level2/:tid/level3/:sid', function(req, res) {
+    const oid = req.params.oid;
+    const cid = req.params.tid;
+    const sid = req.params.sid;
+    const len = data_config.length;
+    let res_data = [];
+    loop: for (let i = 0; i < len; i++) {
+        if (data_config[i].uuid == oid) {
+            let parent = data_config[i];
+            for (let sub of parent.sub) {
+                if (sub.uuid == cid) {
+                   for (let ssc of sub.sub) {
+                       if (sid == ssc.uuid) {
+                           res_data = ssc.sub;
+                           break loop;
+                       }
+                   }
+                }
+            }
+        }
+    }
+    res.send({status:"ok", data:res_data});
+});
+
+/**----------------------------------------------------------*/
 app.post('/delete/:pid/:cid', function (req, res) {
     const pid = req.params.pid;
     const cid = req.params.cid;
