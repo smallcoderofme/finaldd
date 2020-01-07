@@ -12,7 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../style.css">
 </head>
 <body class="Site">
-<img id="background_img" src="../assets/bg.jpg" style="position:absolute; top: 0; left: 0; width: 100%; height: 100%;z-index: -99999;">
+    <img id="background_img" src="../assets/bg.jpg" style="position:absolute; top: 0; left: 0; width: 100%; height: 100%;z-index: -99999;">
     <div class="row Site-content">
         <div class="col-md-12">
         </div>
@@ -84,7 +84,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="delete_sub" data-backdrop="static" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -274,11 +273,120 @@
             }
             let subELe = '';
             for (let i =0;i < leng; i++) {
-                subELe += `<div class="mb-2 mt-2 ml-5 point border-bottom border-dark"><span class="h5 text-primary" onclick="select_page(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`)">`+ currData[i].name +`</span><i class="fa fa-edit ml-5 pull-right" onclick="modify_content(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`);"></i><i class="fa fa-trash-o ml-5 pull-right" onclick="delete_content(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`);"></i></div>`;
+                if (currData[i].sub) {
+                 subELe += `<div class="mb-2 mt-2 ml-5 pt-2 point border-top border-dark">
+                <span class="h5 text-primary" 
+                onclick="toggle2(`+ i + `,` + index + `,` + '\'' + currData[i]['uuid'] + '\'' +`)">
+                <span id="sicon`+i +`"><i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i></span>
+                `+ currData[i].name +
+                `</span><i class="fa fa-edit ml-5 pull-right" 
+                onclick="modify_content(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`);"></i>
+                <i class="fa fa-trash-o ml-5 pull-right" onclick="delete_content(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`);"></i>
+                <i class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="plus_content(`+ index +`,`+i+`);"></i>
+                <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true"></i>
+                    <div id="sub_child_menu`+ i +`" data-id="`+ currData[i]['uuid']+`"></div></li>
+                </div>`;
+                } else {
+                     subELe += `<div class="mb-2 mt-2 pt-2 ml-5 point border-top border-dark">
+                    <span class="h5 text-primary" 
+                    onclick="select_page(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`)">`+ currData[i].name +
+                    `</span>
+                    <i class="fa fa-edit ml-5 pull-right" onclick="modify_content(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`);"></i>
+                    <i class="fa fa-trash-o ml-5 pull-right" onclick="delete_content(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`);"></i>
+                    </div>`;
+                }
             }
             document.querySelector(icon).innerHTML = '<i class="fa fa-minus-square-o mr-3" aria-hidden="true"></i>';
             parent.innerHTML = subELe;
         }
+        function toggle2(i, index, uuid) {
+            console.log('toggle2:', i, index, uuid);
+            const id = "#sub_child_menu" + i;
+            let parent = document.querySelector(id);
+            const icon = "#sicon" + i;
+            let subChild = get_level3(index, uuid);
+            let ele = '';
+            if (parent.innerHTML.length) {
+                parent.innerHTML='';
+                document.querySelector(icon).innerHTML = '<i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i>';
+                return;
+            }
+            const leng = subChild.length;
+            for (let j = 0; j < leng; j++) {
+                let temp = subChild[j];
+                if (temp.sub && temp.sub.length) {
+                    ele += `<div class="mb-2 mt-2 ml-5 pt-2 point border-top border-dark">
+                    <span class="h5 text-primary" onclick="toggle3(`+j+`,`+ i +`,`+ index +`,'`+ temp.uuid +`');">
+                    <span id="ssicon`+j +`">
+                    <i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i></span>`+ temp.name +`</span>
+                    <i class="fa fa-edit ml-5 pull-right" onclick="openModify(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                    <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                    <i class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="plus_content(`+ index +`,` + i +`,`+j+`);"></i>
+                    <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true"></i>
+                    <div id="ssub_child_menu`+ j +`" data-id="`+ temp['uuid']+`"></div>
+                    </div>`;
+                } else {
+                    ele += `<div class="mb-2 mt-2 ml-5 pt-2 point border-top border-dark"><span class="h5 text-primary"> `+ temp.name +`</span>
+                    <i class="fa fa-edit ml-5 pull-right" onclick="openModify(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                    <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                    </div>` 
+                }
+            }
+            document.querySelector(icon).innerHTML = '<i class="fa fa-minus-square-o mr-3" aria-hidden="true"></i>';
+            parent.innerHTML = ele;
+        }
+        function toggle3(ci, pi, index, uuid) {
+            const id = "#ssub_child_menu" + ci;
+            let parent = document.querySelector(id);
+            const icon = "#ssicon" + ci;
+            if (parent.innerHTML.length) {
+                parent.innerHTML='';
+                document.querySelector(icon).innerHTML = '<i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i>';
+                return;
+            }
+            let subChild = data[index].sub[pi].sub[ci].sub;
+            let ele = '';
+            const leng = subChild.length;
+            for (let j = 0; j < leng; j++) {
+                let temp = subChild[j];
+                ele += `<div class="mb-2 mt-2 ml-5 pt-2 point border-top border-dark">
+                    <span class="h5 text-primary"> `+ temp.name +`</span>
+                    <i class="fa fa-edit ml-5 pull-right" aria-hidden="true"></i>
+                    <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true"></i>
+                </div>` 
+            }
+            document.querySelector(icon).innerHTML = '<i class="fa fa-minus-square-o mr-3" aria-hidden="true"></i>';
+            parent.innerHTML = ele;
+        }
+        function get_level3(index, uuid) {
+            let curr = data[index];
+            for (let i = curr.sub.length - 1; i >= 0; i--) {
+                let temp = curr.sub[i];
+                if (temp.sub && temp.sub.length) {
+                    return temp.sub;
+                }
+            }
+            return null;
+        }
+
+        function plus_content(index, pi = null, ci=null, uuid=null) {
+            console.log('plus_content:', index, pi, ci, uuid);
+            if (!index || !pi) {
+                alert("Param Error!");
+                return;
+            }
+            if (ci) {
+                
+                return;
+            }
+            if (pi) {
+                $('#create').on('show.bs.modal', function (e) {
+                });
+                $('#create').modal('show');
+                return;
+            }
+        }
+
         function onAddMenu() {
             const value = document.querySelector('#new_menu').value.trim().replace(' ','');
             if (value.length) {
@@ -329,10 +437,11 @@
             for (let i =0;i < leng; i++) {
                 elements += `<li id="menu`+ i +`" class="list-group-item unselect list-group-item-primary point">
                                 <span class="ml-2 mr-2 h4" onclick="toggle(`+ i +`);"><span id="icon`+i +`">
-                                <i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i></span>`+ data[i].name +
-                    `</span><i class="fa fa-edit ml-5 pull-right" onclick="openModify(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                                <i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i></span>`+ data[i].name + `</span>
+                                <i class="fa fa-edit ml-5 pull-right" onclick="openModify(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
                                 <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
                                 <i class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="create_sub(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                                <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true"></i>
                                 <div id="sub_menu`+ i +`" data-id="`+ data[i]['uuid'] +`"></div></li>`;
             }
             elements += '<li class="h4 list-group-item unselect list-group-item-primary point">' +
@@ -359,6 +468,11 @@
                     "height": document.body.clientHeight
                 }
             }
+        }
+
+        function show_tip() {
+            let template = `
+            `;
         }
 
         function get_token() {
