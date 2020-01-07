@@ -13,6 +13,7 @@
         <div class="row scroll_ctx">
         </div>
         <script>
+            var curr_data;
             $(function () {
                 let size = getScreenState();
                 if (size.width < size.height) {
@@ -24,6 +25,7 @@
                         var id = location.pathname.replace('/menu/','');
                         for (let menu of data.data) {
                             if (id == menu.uuid) {
+                                curr_data = menu.sub;
                                 render(menu.sub);
                             }
                         }
@@ -55,9 +57,24 @@
                 document.querySelectorAll("script").forEach(function(e){ e.parentNode.removeChild(e); });
             }
             function detail(uuid) {
-                // console.log("sub menu uuid: ", uuid);
+                console.log("sub menu uuid: ", uuid);
                 let pid = location.pathname.substr(6);
-                location.href = location.origin + '/menu/'+pid+'/content/' + uuid;
+                let select_data;
+                for (let d of curr_data) {
+                    if (d.uuid == uuid) {
+                        select_data = d;
+                        break;
+                    }
+                }
+                if (select_data) {
+                    if (select_data.sub && select_data.sub.length) {
+                        location.href = location.origin + '/menu/'+pid+'/level2/' + uuid;
+                    } else {
+                        location.href = location.origin + '/menu/'+pid+'/content/' + uuid;
+                    }
+                } else {
+                    alert("数据错误！");
+                }
             }
             function getScreenState() {
                 if(window.innerHeight !== undefined){
