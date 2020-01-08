@@ -14,7 +14,7 @@
 <body class="Site">
     <img id="background_img" src="../assets/bg.jpg" style="position:absolute; top: 0; left: 0; width: 100%; height: 100%;z-index: -99999;">
     <div class="row Site-content">
-        <div class="col-md-12">
+        <div class="col-md-12 scroll_ctx">
         </div>
     </div>
     <div class="modal fade" id="create" data-backdrop="static" tabindex="-1" role="dialog">
@@ -71,7 +71,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">删除主菜单</h5>
+                    <h5 class="modal-title" id="delete_title">删除主菜单</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -293,37 +293,96 @@
             }
         }
 
-        function openDelete(uuid) {
-            $('#delete').on('show.bs.modal', function (e) {
-                console.log('get_menu_name();', get_menu_name(uuid));
-                let tip = "确定要删除《" + get_menu_name(uuid) + "》吗?";
+        function openDelete(index = null, pi = null, si = null, ci=null, uuid = null) {
 
-                let ele = document.querySelector('#delete_menu');
-                ele.innerHTML = tip;
-                ele.setAttribute('data-id',uuid);
+            if (uuid!=null) {
 
-            });
-            $('#delete').modal('show');
+            }
+            if (ci!=null) {
+
+            }
+            if (si!=null) {
+                 $('#delete').on('show.bs.modal', function (e) {
+                    document.querySelector('#delete_title').innerHTML = "删除菜单项";
+                    let tip = "确定要删除《" + data[index].sub[pi].sub[si].name + "》吗?";
+                    let ele = document.querySelector('#delete_menu');
+                    ele.innerHTML = tip;
+                    ele.setAttribute('root-id',data[index].uuid);
+                    ele.setAttribute('parent-id',data[index].sub[pi].uuid);
+                    ele.setAttribute('data-id',data[index].sub[pi].sub[si].uuid);
+                    ele.setAttribute('data-level', '2');
+
+                });
+                $('#delete').modal('show');
+            }
+            if (pi!=null) {
+                $('#delete').on('show.bs.modal', function (e) {
+                     document.querySelector('#delete_title').innerHTML = "删除菜单项";
+                    let tip = "确定要删除《" + data[index].sub[pi].name + "》吗?";
+                    let ele = document.querySelector('#delete_menu');
+                    ele.innerHTML = tip;
+                    ele.setAttribute('parent-id',data[index].uuid);
+                    ele.setAttribute('data-id',data[index].sub[pi].uuid);
+                    ele.setAttribute('data-level', '1');
+                });
+                $('#delete').modal('show');
+            }
+            if (index!=null) {
+                $('#delete').on('show.bs.modal', function (e) {
+                     document.querySelector('#delete_title').innerHTML = "删除主菜单项";
+                    let tip = "确定要删除《" + data[index].name + "》吗?";
+                    let ele = document.querySelector('#delete_menu');
+                    ele.innerHTML = tip;
+                    ele.setAttribute('data-id',data[index].uuid);
+                    ele.setAttribute('data-level', '0');
+                });
+                $('#delete').modal('show');
+            }
         }
 
         function onDeleteMenu() {
             let ele = document.querySelector('#delete_menu');
-            let uuid = ele.getAttribute('data-id');
-            $.ajax({url: '/delete_menu',
-                type: 'POST',
-                data: { uuid: uuid},
-                success: function(res) {
-                    $('#delete').modal('hide');
-                    if (res.status === 'ok') {
-                        data = res.data;
-                        render();
+            const data_level = ele.getAttribute('data-level');
+            if (data_level == '0') {
+                let uuid = ele.getAttribute('data-id');
+                $.ajax({url: '/delete_menu',
+                    type: 'POST',
+                    data: { uuid: uuid},
+                    success: function(res) {
+                        $('#delete').modal('hide');
+                        if (res.status === 'ok') {
+                            data = res.data;
+                            render();
+                        }
+                    },
+                    error: function(error) {
+                        alert("删除数据出错！");
+                        $('#delete').modal('hide');
                     }
-                },
-                error: function(error) {
-                    alert("删除数据出错！");
-                    $('#delete').modal('hide');
-                }
-            });
+                });
+            } else if (data_level == '1') {
+                const pid = ele.getAttribute('parent-id');
+                const id = ele.getAttribute('data-id');
+                console.log('==============',pid, id);
+                $.ajax({url: '/delete_menu/' +pid + '/level/'+id,
+                    type: 'POST',
+                    data: { uuid: id},
+                    success: function(res) {
+                        $('#delete').modal('hide');
+                        if (res.status === 'ok') {
+                            data = res.data;
+                            render();
+                        }
+                    },
+                    error: function(error) {
+                        alert("删除数据出错！");
+                        $('#delete').modal('hide');
+                    }
+                });
+
+            } else if (data_level == '2') {
+
+            }
         }
 
         function get_data() {
@@ -363,7 +422,7 @@
                 `+ currData[i].name +
                 `</span><i class="fa fa-edit ml-5 pull-right" 
                 onclick="openModify(`+ index + `,`+ i +`,`+ null +`,`+ null + `,'`+ currData[i]['uuid'] +`');"></i>
-                <i class="fa fa-trash-o ml-5 pull-right" onclick="delete_content(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`);"></i>
+                <i class="fa fa-trash-o ml-5 pull-right" onclick="openDelete(`+ index + `,` + i +`);"></i>
                 <i class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="plus_content(`+ index +`,`+i+`);"></i>
                 <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true"></i>
                     <div id="sub_child_menu`+ i +`" data-id="`+ currData[i]['uuid']+`"></div></li>
@@ -408,7 +467,8 @@
                     <span id="ssicon`+  j + i +`">
                     <i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i></span>`+ temp.name +`</span>
                     <i class="fa fa-edit ml-5 pull-right" onclick="openModify(`+ index +`,`+ i +`,`+ j + `,`+ null +`,'`+ temp['uuid'] +`');"></i>
-                    <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+ data[i]['uuid'] + `);"></i>
+                    <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" 
+                    onclick="openDelete(`+ index + `,`+i + `,`+ j + `,`+ null + `,'`+ temp.uuid + `');"></i>
                     <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true"></i>
                     <div id="ssub_child_menu`+ j + i +`" data-id="`+ temp['uuid']+`"></div>
                     </div>`;
@@ -416,7 +476,8 @@
                     ele += `<div class="mb-2 mt-2 ml-5 pt-2 point border-top border-dark"><span class="h5 text-primary">
                     <a href="/menu/`+data[index].uuid+`/level2/`+uuid+`/c/`+ temp.uuid +`">`+ temp.name +`</a></span>
                     <i class="fa fa-edit ml-5 pull-right" onclick="modify_content(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
-                    <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                    <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" 
+                    onclick="openDelete(`+ index +`,`+ i + `,`+ j + `,`+ null +`,'`+ temp['uuid'] +`');"></i>
                     </div>` 
                 }
             }
@@ -616,9 +677,9 @@
                                 <span class="ml-2 mr-2 h4" onclick="toggle(`+ i +`);"><span id="icon`+i +`">
                                 <i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i></span>`+ data[i].name + `</span>
                                 <i class="fa fa-edit ml-5 pull-right" onclick="openModify(`+i+`,`+null+`,`+null+`,`+null+`,'`+data[i]['uuid']+`');"></i>
-                                <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                                <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+ i +`);"></i>
                                 <i class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="plus_content(`+ i +`);"></i>
-                                <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true" onclick="create_sub(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                                <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true" onclick="create_sub('`+ data[i]['uuid'] +`');"></i>
                                 <div id="sub_menu`+ i +`" data-id="`+ data[i]['uuid'] +`"></div></li>`;
             }
             elements += '<li class="h4 list-group-item unselect list-group-item-primary point">' +

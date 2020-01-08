@@ -203,9 +203,9 @@ app.post('/modify_menu/:oid/level2/:pid/level3', function (req, res) {
 function delete_file(file, res) {
     fs.stat(file, function(err, stats){
         if(err){
-            // console.log('stats:',err);
+            console.log('delete_file stats:',err);
             // throw err;
-            res.send({status:'error', data: 'file not exist'});
+            // res.send({status:'error', data: 'file not exist'});
         }else{
             console.log('stats:',stats);
             fs.unlink(file, (err) => {
@@ -225,6 +225,30 @@ app.post('/delete_menu', function (req, res) {
             let del_list = data_config.splice(i,1)[0].sub;
             for (let file of del_list) {
                 delete_file('pages/'+file.uuid + '.html', res);
+            }
+        }
+    }
+    write_config(()=>{
+        res.send({status: 'ok', data:data_config});
+    });
+});
+
+app.post('/delete_menu/:rid/level/:pid', function (req, res) {
+    const len = data_config.length;
+    const id = req.body.uuid;
+    const rid = req.params.rid;
+    const pid = req.params.pid;
+    
+    for (let i =0;i<len;i++) {
+        if (data_config[i].uuid == rid) {
+            let temp = data_config[i].sub;
+            for (let j = temp.length - 1; j >= 0; j--) {
+                if(temp[j].uuid == id) {
+                    let del_list = temp.splice(j,1)[0].sub;
+                    for (let file of del_list) {
+                        delete_file('pages/'+file.uuid + '.html', res);
+                    }
+                }
             }
         }
     }
