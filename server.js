@@ -21,23 +21,26 @@ var session = [];
 
 var data_config;
 read_config();
-function read_config() {
+function read_config(callback = null) {
     fs.readFile('data.json', 'utf8', (err, data) => {
         if (err) {
             throw err;
         }
         console.log('Read config file success!');
         data_config = JSON.parse(data);
+        if (callback) {
+            callback();
+        }
     });
 }
 
-function write_config() {
+function write_config(callback) {
     fs.writeFile('data.json', JSON.stringify(data_config), (err) => {
         if (err) {
             throw err;
         };
         console.log('The config file has been saved!');
-        read_config();
+        read_config(callback);
     });
 }
 
@@ -87,11 +90,54 @@ app.post('/post_menu', function (req, res) {
         uuid: uuidv4(),
         sub: []
     });
-    write_config();
-    res.send({status: 'ok', data:data_config});
-
-
+    write_config(()=>{
+        res.send({status: 'ok', data:data_config});
+    });
 });
+
+app.post('/post_menu/:oid/leve2', function (req, res) {
+    const oid = req.params.oid; 
+    let new_menu = req.body.data;
+    for (var i = data_config.length - 1; i >= 0; i--) {
+        let temp =  data_config[i];
+        if (temp.uuid == oid) {
+            temp.sub.push({
+                name: new_menu,
+                uuid: uuidv4(),
+                sub: []
+            });
+            break;
+        }
+    }
+    write_config(()=>{
+        res.send({status: 'ok', data:data_config});
+    });
+});
+
+app.post('/post_menu/:rid/leve2/:pid/level3', function (req, res) {
+    const rid = req.params.rid; 
+    const pid = req.params.pid;
+    let new_menu = req.body.data;
+    loop: for (let i = data_config.length - 1; i >= 0; i--) {
+        if (data_config[i].uuid == rid) {
+            let temp = data_config[i].sub;
+            for (let j = temp.length - 1; j >= 0; j--) {
+                if(temp[j].uuid == pid) {
+                    temp[j].sub.push({
+                        name: new_menu,
+                        uuid: uuidv4(),
+                        sub: []
+                    });
+                    break loop;
+                }
+            }
+        }
+    }
+    write_config(()=>{
+        res.send({status: 'ok', data:data_config});
+    });
+});
+
 app.post('/modify_menu', function (req, res) {
     const len = data_config.length;
     const tempName = req.body.data;
@@ -101,14 +147,63 @@ app.post('/modify_menu', function (req, res) {
             data_config[i].name = tempName;
         }
     }
-    write_config();
-    res.send({status: 'ok', data:data_config});
+    write_config(()=>{
+        res.send({status: 'ok', data:data_config});
+    });
+});
+
+app.post('/modify_menu/:oid/level2', function (req, res) {
+    const len = data_config.length;
+    const tempName = req.body.data;
+    const oid = req.params.oid;
+    const id = req.body.uuid;
+    loop: for (let i =0;i<len;i++) {
+        if (data_config[i].uuid == oid) {
+            let temp = data_config[i].sub;
+            for (let j = temp.length - 1; j >= 0; j--) {
+                if(temp[j].uuid == id){
+                    temp[j].name = tempName;
+                    break loop;
+                }
+            }
+        }
+    }
+    write_config(()=>{
+        res.send({status: 'ok', data:data_config});
+    });
+});
+
+app.post('/modify_menu/:oid/level2/:pid/level3', function (req, res) {
+    const len = data_config.length;
+    const tempName = req.body.data;
+    const oid = req.params.oid;
+    const pid = req.params.pid;
+    const id = req.body.uuid;
+    loop: for (let i =0;i<len;i++) {
+        if (data_config[i].uuid == oid) {
+            let temp = data_config[i].sub;
+            for (let j = temp.length - 1; j >= 0; j--) {
+                if(temp[j].uuid == pid){
+                   let temp1 = temp[j].sub;
+                   for (let n = temp1.length - 1; n >= 0; n--) {
+                       if(temp1[n].uuid == id) {
+                           temp1[n].name = tempName;
+                           break loop;
+                       }
+                   }
+                }
+            }
+        }
+    }
+    write_config(()=>{
+        res.send({status: 'ok', data:data_config});
+    });
 });
 
 function delete_file(file, res) {
     fs.stat(file, function(err, stats){
         if(err){
-            console.log('stats:',err);
+            // console.log('stats:',err);
             // throw err;
             res.send({status:'error', data: 'file not exist'});
         }else{
@@ -133,8 +228,9 @@ app.post('/delete_menu', function (req, res) {
             }
         }
     }
-    write_config();
-    res.send({status: 'ok', data:data_config});
+    write_config(()=>{
+        res.send({status: 'ok', data:data_config});
+    });
 });
 
 app.post('/auth/login', function (req, res) {
@@ -152,12 +248,15 @@ app.post('/auth/login', function (req, res) {
 });
 
 app.get('/edit', function(req, res) {
-    if(req.query.token && verify_token(req.query.token)){
-        res.sendFile(__dirname + '/src/menu_manage.html');
+    if (req.query.token) {
+        if (!verify_token(req.query.token)) {
+            res.sendFile(__dirname + '/src/login.html');
+        } else {
+            res.sendFile(__dirname + '/src/menu_manage.html');
+        }
     } else {
         res.sendFile(__dirname + '/src/login.html');
     }
-
 });
 
 app.get('/create_content', function (req, res) {
@@ -184,11 +283,12 @@ app.post('/save_content', function(req, res) {
         name: req.body.title,
         uuid: uuid,
     };
-    write_config();
-    fs.writeFile(file_name, tpl.tmplate_0 + content_html + tpl.tmplate_1, (err) => {
-        if (err) throw err;
-        console.log('The html file has been saved!');
-        res.send({status: 'ok'});
+    write_config(()=>{
+        fs.writeFile(file_name, tpl.tmplate_0 + content_html + tpl.tmplate_1, (err) => {
+            if (err) throw err;
+            console.log('The html file has been saved!');
+            res.send({status: 'ok'});
+        });
     });
 });
 app.post('/save_content/modify', function(req, res) {
@@ -211,11 +311,12 @@ app.post('/save_content/modify', function(req, res) {
             }
         }
     }
-    write_config();
-    fs.writeFile(file_name, tpl.tmplate_0 + content_html + tpl.tmplate_1, (err) => {
-        if (err) throw err;
-        console.log('The html file has been saved!');
-        res.send({status: 'ok'});
+    write_config(()=>{
+        fs.writeFile(file_name, tpl.tmplate_0 + content_html + tpl.tmplate_1, (err) => {
+            if (err) throw err;
+            console.log('The html file has been saved!');
+            res.send({status: 'ok'});
+        });
     });
 });
 app.get('/menu/:uuid/content/:cid', function(req, res) {
@@ -306,21 +407,20 @@ app.post('/delete/:pid/:cid', function (req, res) {
             }
         }
     }
-    write_config();
-    const file_name = 'pages/' + cid + '.html';
-    fs.stat(file_name, function(err, stats){
-        if(err){
-            console.log('stats err:',err);
-            res.send({status:'error', data: 'file not exist'});
-            // throw err;
-        }else{
-            fs.unlink(file_name, (err) => {
-                if (err) throw err;
-                console.log(file_name + ' was deleted');
-                // res.send({ status:'success'});
+    write_config(()=>{
+        const file_name = 'pages/' + cid + '.html';
+        fs.stat(file_name, function(err, stats){
+            if(err){
                 res.send({status:'ok', data: data_config});
-            });
-        }
+                // throw err;
+            }else{
+                fs.unlink(file_name, (err) => {
+                    if (err) throw err;
+                    console.log(file_name + ' was deleted');
+                    res.send({status:'ok', data: data_config});
+                });
+            }
+        });
     });
 
 });
@@ -334,7 +434,6 @@ app.get('/modify', function (req, res) {
 app.post('/modify', function (req, res) {
     const pid = req.body.pid;
     const cid = req.body.cid;
-    console.log('-------------',req.query.token);
     if(req.query.token && !verify_token(req.query.token)){
         res.send({status:'error', data: 'auth error'});
     } else if(!req.query.token) {
@@ -362,14 +461,14 @@ app.post('/modify', function (req, res) {
             if (err) {
                 res.send({
                     status: 'error',
-                    data: "Error: config.js can't read or not exist."
+                    data: "Error: file can't read or not exist."
                 });
                 throw err;
             }
-            const ctx_len = content.length - tpl.tpl_0_len - tpl.tpl_1_len;
-            const ctx = content.substr(tpl.tpl_0_len, ctx_len);
-
-            // console.log('name:',name);
+            const HEADER = tpl.tmplate_0.length;
+            const FOOTER = tpl.tmplate_1.length;
+            const ctx_len = content.length - HEADER - FOOTER;
+            const ctx = content.substr(HEADER, ctx_len);
             res.send({status:'ok', data: ctx, name:name});
         });
     }

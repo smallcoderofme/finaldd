@@ -73,6 +73,3 @@ const tpl_pre = `<!DOCTYPE html><html><head>
 
 exports.tmplate_0 = tpl_pre;
 exports.tmplate_1 = tpl_next;
-
-exports.tpl_0_len = 4957;// tpl_pre.length + 14
-exports.tpl_1_len = 115; // tpl_next.length
