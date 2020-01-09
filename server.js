@@ -204,10 +204,9 @@ function delete_file(file) {
     let file_name = 'pages/'+ file + '.html';
     fs.stat(file_name, function(err, stats){
         if(err){
-            console.log('delete_file stats:',err);
+            console.log('delete_file stats: ', err);
             // throw err;
             // res.send({status:'error', data: 'file not exist'});
-            console.log('delete_file >>>>>>>>>>>>>>>>>>>>>>',file);
             if (file.sub && file.sub.length) {
                 for(let f of file.sub) {
                     delete_file(f);
@@ -425,7 +424,7 @@ app.post('/save_content', function(req, res) {
     }
     fs.writeFile(file_name, tpl.tmplate_0 + content_html + tpl.tmplate_1, (err) => {
         if (err) throw err;
-        console.log('The html file has been saved!');
+        console.log('The file has been saved!');
         write_config(()=>{
             res.send({status: 'ok'});
         });
@@ -701,7 +700,7 @@ app.post('/save_content/modify', function(req, res) {
     const content_html = req.body.data;
     fs.writeFile(file_name, tpl.tmplate_0 + content_html + tpl.tmplate_1, (err) => {
         if (err) throw err;
-        console.log('The html file has been saved!');
+        console.log('The file has been saved!');
         write_config(()=>{
             res.send({status: 'ok'});
         });

@@ -474,9 +474,9 @@
                 `</span><i class="fa fa-edit ml-5 pull-right" 
                 onclick="openModify(`+ index + `,`+ i +`,`+ null +`,`+ null + `,'`+ currData[i]['uuid'] +`');"></i>
                 <i class="fa fa-trash-o ml-5 pull-right" onclick="openDelete(`+ index + `,` + i +`);"></i>
-                <i class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="plus_content(`+ index +`,`+i+`);"></i>
                 <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true" onclick="create_sub(`+index+`,`+i+`);"></i>
-                    <div id="sub_child_menu`+ i +`" data-id="`+ currData[i]['uuid']+`"></div></li>
+                <i class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="plus_content(`+ index +`,`+i+`);"></i>
+                <div id="sub_child_menu`+ i +`" data-id="`+ currData[i]['uuid']+`"></div></li>
                 </div>`;
                 } else {
                      subELe += `<div class="mb-2 mt-2 pt-2 ml-5 point border-top border-dark">
@@ -761,8 +761,8 @@
                                 <i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i></span>`+ data[i].name + `</span>
                                 <i class="fa fa-edit ml-5 pull-right" onclick="openModify(`+i+`,`+null+`,`+null+`,`+null+`,'`+data[i]['uuid']+`');"></i>
                                 <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+ i +`);"></i>
-                                <i class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="plus_content(`+ i +`);"></i>
                                 <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true" onclick="create_sub(`+ i +`);"></i>
+                                <i class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="plus_content(`+ i +`);"></i>
                                 <div id="sub_menu`+ i +`" data-id="`+ data[i]['uuid'] +`"></div></li>`;
             }
             elements += '<li class="h4 list-group-item unselect list-group-item-primary point">' +
