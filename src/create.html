@@ -102,9 +102,9 @@
       save_btn.innerHTML = "Saving";
       save_btn.setAttribute('disabled', 'disabled');
       let parid=GetQueryString('pid');
-      $.ajax({url: '/save_content',
+      $.ajax({url: '/save_content' + location.search,
         type: 'POST', 
-        data: { data: content, title: title.value, pid: parid},
+        data: { data: content, title: title.value},
         success: function(data) {
           save_btn.removeAttribute('disabled');
           save_btn.innerHTML = "Save";

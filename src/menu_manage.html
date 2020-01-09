@@ -314,6 +314,7 @@
 
                 });
                 $('#delete').modal('show');
+                return;
             }
             if (pi!=null) {
                 $('#delete').on('show.bs.modal', function (e) {
@@ -326,6 +327,7 @@
                     ele.setAttribute('data-level', '1');
                 });
                 $('#delete').modal('show');
+                return;
             }
             if (index!=null) {
                 $('#delete').on('show.bs.modal', function (e) {
@@ -337,6 +339,7 @@
                     ele.setAttribute('data-level', '0');
                 });
                 $('#delete').modal('show');
+                return;
             }
         }
 
@@ -424,7 +427,7 @@
                 onclick="openModify(`+ index + `,`+ i +`,`+ null +`,`+ null + `,'`+ currData[i]['uuid'] +`');"></i>
                 <i class="fa fa-trash-o ml-5 pull-right" onclick="openDelete(`+ index + `,` + i +`);"></i>
                 <i class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="plus_content(`+ index +`,`+i+`);"></i>
-                <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true"></i>
+                <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true" onclick="create_sub(`+index+`,`+i+`);"></i>
                     <div id="sub_child_menu`+ i +`" data-id="`+ currData[i]['uuid']+`"></div></li>
                 </div>`;
                 } else {
@@ -469,7 +472,7 @@
                     <i class="fa fa-edit ml-5 pull-right" onclick="openModify(`+ index +`,`+ i +`,`+ j + `,`+ null +`,'`+ temp['uuid'] +`');"></i>
                     <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" 
                     onclick="openDelete(`+ index + `,`+i + `,`+ j + `,`+ null + `,'`+ temp.uuid + `');"></i>
-                    <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true"></i>
+                    <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true" onclick="create_sub(`+index +`,`+i+`,`+j+`);"></i>
                     <div id="ssub_child_menu`+ j + i +`" data-id="`+ temp['uuid']+`"></div>
                     </div>`;
                 } else {
@@ -610,7 +613,6 @@
                 const create_level = document.querySelector('#create_level');
                 const pid = create_level.getAttribute('parent-id');
                 const rid = create_level.getAttribute('root-id');
-                console.log('---------------------', rid, pid);
                 $.ajax({url: '/post_menu/'+ rid +'/leve2/' + pid + '/level3',
                     type: 'POST',
                     data: { data: value },
@@ -659,12 +661,31 @@
             }
         }
 
-        function create_sub(uuid) {
+        function create_sub(index = null, pi = null, si = null, ci = null, uuid = null) {
             let token = get_token();
-            if (token) {
-                location.href = location.origin + '/create_content?token=' + token + '&pid=' + uuid;
-            } else {
+            if (!token) {
                 alert('auth error');
+                return;
+            }
+            if (ci!=null) {
+            }
+            if (si!=null) {
+                location.href = location.origin + '/create_content?token=' + token + 
+                '&rid=' + data[index].uuid + 
+                '&pid=' + data[index].sub[pi].uuid + 
+                '&sid=' + data[index].sub[pi].sub[si].uuid;
+                return;
+            }
+            if (pi!=null) {
+                location.href = location.origin + '/create_content?token=' + token + 
+                '&rid=' + data[index].uuid + 
+                '&pid=' + data[index].sub[pi].uuid;
+                return;
+            }
+            if (index!=null) {
+                location.href = location.origin + '/create_content?token=' + token + 
+                '&rid=' + data[index].uuid;
+                return;
             }
         }
 
@@ -679,7 +700,7 @@
                                 <i class="fa fa-edit ml-5 pull-right" onclick="openModify(`+i+`,`+null+`,`+null+`,`+null+`,'`+data[i]['uuid']+`');"></i>
                                 <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+ i +`);"></i>
                                 <i class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="plus_content(`+ i +`);"></i>
-                                <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true" onclick="create_sub('`+ data[i]['uuid'] +`');"></i>
+                                <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true" onclick="create_sub(`+ i +`);"></i>
                                 <div id="sub_menu`+ i +`" data-id="`+ data[i]['uuid'] +`"></div></li>`;
             }
             elements += '<li class="h4 list-group-item unselect list-group-item-primary point">' +

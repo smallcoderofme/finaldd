@@ -284,6 +284,9 @@ app.get('/edit', function(req, res) {
 });
 
 app.get('/create_content', function (req, res) {
+    if (!req.query.token) {
+        res.sendFile(__dirname + '/src/login.html');
+    }
     if(verify_token(req.query.token)){
         res.sendFile(__dirname + '/src/create.html');
     } else {
@@ -295,18 +298,61 @@ app.post('/save_content', function(req, res) {
     const uuid = uuidv4();
     const file_name = 'pages/' + uuid + '.html';
     const content_html = req.body.data;
-    const len = data_config.length;
-    let parent;
-    for (let i = 0; i < len; i++) {
-        if (data_config[i].uuid == req.body.pid) {
-            parent = data_config[i];
-            break;
+
+    const rid = req.query.rid;
+    const pid = req.query.pid;
+    const sid = req.query.sid;
+    if (sid) {
+        loop: for (let i = data_config.length - 1; i >= 0; i--) {
+            if(data_config[i].uuid == rid) {
+                let root = data_config[i].sub;
+                for (let j = root.length - 1; j >= 0; j--) {
+                    if(root[j].uuid == pid) {
+                        let parent = root[j].sub;
+                        for (let n = parent.length - 1; n >= 0; n--) {
+                            if(parent[n].uuid == sid) {
+                                let son = parent[n];
+                                son.sub[son.sub.length] = {
+                                    name: req.body.title,
+                                    uuid: uuid,
+                                };
+                                break loop;
+                            }
+                        } 
+                    }
+                }
+            }
         }
+    } else if (pid) {
+        loop: for (let i = data_config.length - 1; i >= 0; i--) {
+            if(data_config[i].uuid == rid) {
+                let root = data_config[i].sub;
+                for (let j = root.length - 1; j >= 0; j--) {
+                    if(root[j].uuid == pid) {
+                        let parent = root[j];
+                        parent.sub[parent.sub.length] = {
+                            name: req.body.title,
+                            uuid: uuid,
+                        };
+                        break loop;
+                    }
+                }
+            }
+        }
+    } else if (rid) {
+        for (let i = data_config.length - 1; i >= 0; i--) {
+            if(data_config[i].uuid == rid) {
+                let root = data_config[i];
+                root.sub[root.sub.length] = {
+                    name: req.body.title,
+                    uuid: uuid,
+                };
+                break;
+            }
+        }
+    } else {
+        res.send({status: 'err', data:"params error."});
     }
-    parent.sub[parent.sub.length] = {
-        name: req.body.title,
-        uuid: uuid,
-    };
     write_config(()=>{
         fs.writeFile(file_name, tpl.tmplate_0 + content_html + tpl.tmplate_1, (err) => {
             if (err) throw err;
