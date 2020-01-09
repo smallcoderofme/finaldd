@@ -56,6 +56,7 @@
   <script src="/bower_components/froala-wysiwyg-editor/js/plugins/table.min.js"></script>
   <script src="/bower_components/froala-wysiwyg-editor/js/plugins/video.min.js"></script>
   <script src="/bower_components/froala-wysiwyg-editor/js/plugins/edit_in_popup.min.js"></script>
+  <script src='/bower_components/froala-wysiwyg-editor/js/languages/zh_cn.js'></script>
   <!-- End Froala -->
 
   <link rel="stylesheet" href="../style.css">
@@ -67,7 +68,7 @@
   <div class="sample">
     <div class="form-group">
       <label for="menu">新的菜单按钮名称</label>
-      <input type="text" class="form-control" id="menu" placeholder="Menu1">
+      <input type="text" class="form-control" id="menu" placeholder="菜单名称">
     </div>
     <form id="form">
       <textarea id="edit" name="content"></textarea>
@@ -118,7 +119,7 @@
 
     $(function() {
       var editor = new FroalaEditor('#edit', {
-
+        language: 'zh_cn',
         imageUploadURL: '/upload_image',
         imageUploadParams: {
           id: 'my_editor'
