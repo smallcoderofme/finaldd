@@ -299,7 +299,19 @@
 
             }
             if (ci!=null) {
+                 $('#delete').on('show.bs.modal', function (e) {
+                    document.querySelector('#delete_title').innerHTML = "删除菜单项";
+                    let tip = "确定要删除《" + data[index].sub[pi].sub[si].sub[ci].name + "》吗?";
+                    let ele = document.querySelector('#delete_menu');
+                    ele.innerHTML = tip;
+                    ele.setAttribute('root-id',  data[index].uuid);
+                    ele.setAttribute('parent-id',data[index].sub[pi].uuid);
+                    ele.setAttribute('son-id',   data[index].sub[pi].sub[si].uuid);
+                    ele.setAttribute('data-id',  data[index].sub[pi].sub[si].sub[ci].uuid);
+                    ele.setAttribute('data-level', '3');
 
+                });
+                $('#delete').modal('show');
             }
             if (si!=null) {
                  $('#delete').on('show.bs.modal', function (e) {
@@ -366,10 +378,9 @@
             } else if (data_level == '1') {
                 const pid = ele.getAttribute('parent-id');
                 const id = ele.getAttribute('data-id');
-                console.log('==============',pid, id);
                 $.ajax({url: '/delete_menu/' +pid + '/level/'+id,
                     type: 'POST',
-                    data: { uuid: id},
+                    data: {},
                     success: function(res) {
                         $('#delete').modal('hide');
                         if (res.status === 'ok') {
@@ -384,7 +395,44 @@
                 });
 
             } else if (data_level == '2') {
-
+                const rid = ele.getAttribute('root-id');
+                const pid = ele.getAttribute('parent-id');
+                const sid = ele.getAttribute('data-id');
+                $.ajax({url: '/delete_menu/' +rid + '/level/'+pid + '/level2/' + sid,
+                    type: 'POST',
+                    data: {},
+                    success: function(res) {
+                        $('#delete').modal('hide');
+                        if (res.status === 'ok') {
+                            data = res.data;
+                            render();
+                        }
+                    },
+                    error: function(error) {
+                        alert("删除数据出错！");
+                        $('#delete').modal('hide');
+                    }
+                });
+            } else if(data_level == '3') {
+                const rid = ele.getAttribute('root-id');
+                const pid = ele.getAttribute('parent-id');
+                const sid = ele.getAttribute('son-id');
+                const cid = ele.getAttribute('data-id');
+                $.ajax({url: '/delete_menu/'+rid+'/level/'+pid+'/level2/'+sid+'/level3/' +cid,
+                    type: 'POST',
+                    data: {},
+                    success: function(res) {
+                        $('#delete').modal('hide');
+                        if (res.status === 'ok') {
+                            data = res.data;
+                            render();
+                        }
+                    },
+                    error: function(error) {
+                        alert("删除数据出错！");
+                        $('#delete').modal('hide');
+                    }
+                });
             }
         }
 
@@ -432,11 +480,10 @@
                 </div>`;
                 } else {
                      subELe += `<div class="mb-2 mt-2 pt-2 ml-5 point border-top border-dark">
-                    <span class="h5 text-primary" 
-                    onclick="select_page(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`)">`+ currData[i].name +
-                    `</span>
-                    <i class="fa fa-edit ml-5 pull-right" onclick="modify_content(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`);"></i>
-                    <i class="fa fa-trash-o ml-5 pull-right" onclick="delete_content(`+ index + `,` + '\'' + currData[i]['uuid'] + '\'' +`);"></i>
+                    <span class="h5 text-primary"><a href="/menu/`+data[index].uuid+`/content/`+ currData[i]['uuid']+`">`+ currData[i].name +
+                    `</a></span>
+                    <i class="fa fa-edit ml-5 pull-right" onclick="modify_content(`+ index + `,`  + i + `);"></i>
+                    <i class="fa fa-trash-o ml-5 pull-right" onclick="delete_content(`+ index + `,'` + currData[i]['uuid'] + `');"></i>
                     </div>`;
                 }
             }
@@ -478,7 +525,7 @@
                 } else {
                     ele += `<div class="mb-2 mt-2 ml-5 pt-2 point border-top border-dark"><span class="h5 text-primary">
                     <a href="/menu/`+data[index].uuid+`/level2/`+uuid+`/c/`+ temp.uuid +`">`+ temp.name +`</a></span>
-                    <i class="fa fa-edit ml-5 pull-right" onclick="modify_content(`+ '\''+ data[i]['uuid'] + '\''+`);"></i>
+                    <i class="fa fa-edit ml-5 pull-right" onclick="modify_content(`+ index +`,`+ i +`,`+ j + `);"></i>
                     <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" 
                     onclick="openDelete(`+ index +`,`+ i + `,`+ j + `,`+ null +`,'`+ temp['uuid'] +`');"></i>
                     </div>` 
@@ -515,8 +562,8 @@
                     `/level3/`+ data[index].sub[pi].sub[ci].uuid +
                     `/c/`+temp.uuid+`">`+ temp.name +`</a>
                     </span>
-                    <i class="fa fa-edit ml-5 pull-right" aria-hidden="true"></i>
-                    <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true"></i>
+                    <i class="fa fa-edit ml-5 pull-right" aria-hidden="true" onclick="modify_content(`+ index +`,`+ pi +`,`+ ci +`,`+ j + `);"></i>
+                    <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+index+`,`+pi+`,`+ci+`,`+j+ `,'`+ temp.uuid + `');"></i>
                 </div>` 
             }
             document.querySelector(icon).innerHTML = '<i class="fa fa-minus-square-o mr-3" aria-hidden="true"></i>';
@@ -647,17 +694,32 @@
             }
         }
 
-        function select_page(index, cid) {
-            let pid = document.querySelector('#sub_menu' + index).getAttribute('data-id');
-            location.href = location.origin + '/menu/'+pid+'/content/' + cid;
-        }
-        function modify_content(index, cid) {
+        function modify_content(index = null, pi = null, si = null, ci = null, uuid = null) {
             let token = get_token();
-            if (token) {
-                let pid = document.querySelector('#sub_menu' + index).getAttribute('data-id');
-                location.href = location.origin + '/modify?token=' + token + '&pid=' + pid + '&cid=' + cid;
-            } else {
-                alert('auth error');
+            if (!token || index == null) {
+                alert('params error.');
+                return;
+            }
+            if (ci!=null) {
+                location.href = location.origin + '/modify?token=' + token + 
+                '&rid=' + data[index].uuid + 
+                '&pid=' + data[index].sub[pi].uuid + 
+                '&sid=' + data[index].sub[pi].sub[si].uuid +
+                '&cid=' + data[index].sub[pi].sub[si].sub[ci].uuid;
+                return;
+            }
+            if (si!=null) {
+                location.href = location.origin + '/modify?token=' + token + 
+                '&rid=' + data[index].uuid + 
+                '&pid=' + data[index].sub[pi].uuid + 
+                '&sid=' + data[index].sub[pi].sub[si].uuid;
+                return;
+            }
+            if (pi!=null) {
+                location.href = location.origin + '/modify?token=' + token + 
+                '&rid=' + data[index].uuid + 
+                '&pid=' + data[index].sub[pi].uuid;
+                return;
             }
         }
 

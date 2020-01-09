@@ -200,21 +200,26 @@ app.post('/modify_menu/:oid/level2/:pid/level3', function (req, res) {
     });
 });
 
-function delete_file(file, res) {
-    fs.stat(file, function(err, stats){
+function delete_file(file) {
+    let file_name = 'pages/'+ file + '.html';
+    fs.stat(file_name, function(err, stats){
         if(err){
             console.log('delete_file stats:',err);
             // throw err;
             // res.send({status:'error', data: 'file not exist'});
+            console.log('delete_file >>>>>>>>>>>>>>>>>>>>>>',file);
+            if (file.sub && file.sub.length) {
+                for(let f of file.sub) {
+                    delete_file(f);
+                }
+            }
         }else{
-            console.log('stats:',stats);
-            fs.unlink(file, (err) => {
+            fs.unlink(file_name, (err) => {
                 if (err) throw err;
-                console.log(file + ' was deleted');
+                console.log(file_name + ' was deleted');
             });
         }
     });
-
 }
 
 app.post('/delete_menu', function (req, res) {
@@ -224,8 +229,9 @@ app.post('/delete_menu', function (req, res) {
         if (data_config[i].uuid == id) {
             let del_list = data_config.splice(i,1)[0].sub;
             for (let file of del_list) {
-                delete_file('pages/'+file.uuid + '.html', res);
+                delete_file(file);
             }
+            break;
         }
     }
     write_config(()=>{
@@ -235,19 +241,83 @@ app.post('/delete_menu', function (req, res) {
 
 app.post('/delete_menu/:rid/level/:pid', function (req, res) {
     const len = data_config.length;
-    const id = req.body.uuid;
     const rid = req.params.rid;
     const pid = req.params.pid;
     
-    for (let i =0;i<len;i++) {
+    loop: for (let i =0;i<len;i++) {
         if (data_config[i].uuid == rid) {
             let temp = data_config[i].sub;
             for (let j = temp.length - 1; j >= 0; j--) {
-                if(temp[j].uuid == id) {
+                if(temp[j].uuid == pid) {
                     let del_list = temp.splice(j,1)[0].sub;
                     for (let file of del_list) {
-                        delete_file('pages/'+file.uuid + '.html', res);
+                        delete_file(file);
                     }
+                    break loop;
+                }
+            }
+        }
+    }
+    write_config(()=>{
+        res.send({status: 'ok', data:data_config});
+    });
+});
+
+app.post('/delete_menu/:rid/level/:pid/level2/:sid', function (req, res) {
+    const rid = req.params.rid;
+    const pid = req.params.pid;
+    const sid = req.params.sid;
+
+    const len = data_config.length;
+    loop: for (let i =0;i<len;i++) {
+        if (data_config[i].uuid == rid) {
+            let temp = data_config[i].sub;
+            for (let j = temp.length - 1; j >= 0; j--) {
+                if(temp[j].uuid == pid) {
+                    let temps = temp[j].sub;
+                    for (let n = temps.length - 1; n >= 0; n--) {
+                        if(temps[n].uuid == sid) {
+                            let del_list = temps.splice(n,1)[0].sub;
+                            for (let file of del_list) {
+                                delete_file(file);
+                            }
+                            break loop;
+                        }
+                    } 
+                }
+            }
+        }
+    }
+    write_config(()=>{
+        res.send({status: 'ok', data:data_config});
+    });
+});
+
+app.post('/delete_menu/:rid/level/:pid/level2/:sid/level3/:cid', function (req, res) {
+    const rid = req.params.rid;
+    const pid = req.params.pid;
+    const sid = req.params.sid;
+    const cid = req.params.cid;
+
+    const len = data_config.length;
+    loop: for (let i =0;i<len;i++) {
+        if (data_config[i].uuid == rid) {
+            let temp = data_config[i].sub;
+            for (let j = temp.length - 1; j >= 0; j--) {
+                if(temp[j].uuid == pid) {
+                    let temps = temp[j].sub;
+                    for (let n = temps.length - 1; n >= 0; n--) {
+                        if(temps[n].uuid == sid) {
+                            let temp1 = temps[n].sub;
+                            for (let m = temp1.length - 1; m >= 0; m--) {
+                                if(temp1[m].uuid == cid) {
+                                    temp1.splice(m,1);
+                                    delete_file(cid);
+                                    break loop;
+                                }
+                            }
+                        }
+                    } 
                 }
             }
         }
@@ -353,38 +423,10 @@ app.post('/save_content', function(req, res) {
     } else {
         res.send({status: 'err', data:"params error."});
     }
-    write_config(()=>{
-        fs.writeFile(file_name, tpl.tmplate_0 + content_html + tpl.tmplate_1, (err) => {
-            if (err) throw err;
-            console.log('The html file has been saved!');
-            res.send({status: 'ok'});
-        });
-    });
-});
-app.post('/save_content/modify', function(req, res) {
-    const uuid = req.body.uuid;
-    const file_name = 'pages/' + uuid + '.html';
-    const content_html = req.body.data;
-
-    const len = data_config.length;
-    loop: for (let i = 0; i < len; i++) {
-        if (data_config[i].uuid == req.body.pid) {
-            let parent = data_config[i];
-            for (let sub of parent.sub) {
-                if (sub.uuid == uuid) {
-                    sub = {
-                        name: req.body.title,
-                        uuid: uuid
-                    }
-                    break loop;
-                }
-            }
-        }
-    }
-    write_config(()=>{
-        fs.writeFile(file_name, tpl.tmplate_0 + content_html + tpl.tmplate_1, (err) => {
-            if (err) throw err;
-            console.log('The html file has been saved!');
+    fs.writeFile(file_name, tpl.tmplate_0 + content_html + tpl.tmplate_1, (err) => {
+        if (err) throw err;
+        console.log('The html file has been saved!');
+        write_config(()=>{
             res.send({status: 'ok'});
         });
     });
@@ -478,23 +520,25 @@ app.post('/delete/:pid/:cid', function (req, res) {
         }
     }
     write_config(()=>{
-        const file_name = 'pages/' + cid + '.html';
-        fs.stat(file_name, function(err, stats){
-            if(err){
-                res.send({status:'ok', data: data_config});
-                // throw err;
-            }else{
-                fs.unlink(file_name, (err) => {
-                    if (err) throw err;
-                    console.log(file_name + ' was deleted');
-                    res.send({status:'ok', data: data_config});
-                });
-            }
-        });
     });
-
+    const file_name = 'pages/' + cid + '.html';
+    fs.stat(file_name, function(err, stats){
+        if(err){
+            res.send({status:'ok', data: data_config});
+            // throw err;
+        }else{
+            fs.unlink(file_name, (err) => {
+                if (err) throw err;
+                console.log(file_name + ' was deleted');
+                res.send({status:'ok', data: data_config});
+            });
+        }
+    })
 });
 app.get('/modify', function (req, res) {
+    if (!req.query.token) {
+        res.sendFile(__dirname + '/src/login.html');
+    }
     if(verify_token(req.query.token)){
         res.sendFile(__dirname + '/src/edit.html');
     } else {
@@ -502,48 +546,168 @@ app.get('/modify', function (req, res) {
     }
 });
 app.post('/modify', function (req, res) {
-    const pid = req.body.pid;
-    const cid = req.body.cid;
-    if(req.query.token && !verify_token(req.query.token)){
-        res.send({status:'error', data: 'auth error'});
-    } else if(!req.query.token) {
-        res.send({status:'error', data: 'auth error'});
-    } else {
-        const file_name = 'pages/'+ cid + '.html';
-        console.log('pid:', pid, 'cid:',cid);
-        let name = '';
-        let len = data_config.length;
+    if (!req.query.token) {
+        res.sendFile(__dirname + '/src/login.html');
+    }
 
-        loop:for (let i=0;i<len;i++) {
-            let temp = data_config[i];
-            if (temp.uuid == pid) {
-                for (let j=temp.sub.length-1;j>-1;j--) {
-                    if (temp.sub[j].uuid == cid) {
-                        name = temp.sub[j].name;
-                        console.log('get name: ',name);
-                        break loop;
+    const rid = req.query.rid;
+    const pid = req.query.pid;
+    const sid = req.query.sid;
+    const cid = req.query.cid;
+
+    let file_name, name;
+    if (cid) {
+        file_name = 'pages/'+ cid + '.html';
+        loop: for (let i = data_config.length - 1; i >= 0; i--) {
+            if(data_config[i].uuid == rid) {
+                let root = data_config[i].sub;
+                for (let j = root.length - 1; j >= 0; j--) {
+                    if(root[j].uuid == pid) {
+                        let parent = root[j].sub;
+                        for (let n = parent.length - 1; n >= 0; n--) {
+                            if(parent[n].uuid == sid) {
+                                let son = parent[n].sub;
+                                for (let m = son.length - 1; m >= 0; m--) {
+                                    if(son[m].uuid == cid) {
+                                        name = son[m].name;
+                                        break loop;
+                                    }
+                                }
+                            }
+                        } 
                     }
                 }
             }
         }
 
-        fs.readFile(file_name, 'utf8', (err, content) => {
-            if (err) {
-                res.send({
-                    status: 'error',
-                    data: "Error: file can't read or not exist."
-                });
-                throw err;
+    } else if (sid) {
+        file_name = 'pages/'+ sid + '.html';
+        loop: for (let i = data_config.length - 1; i >= 0; i--) {
+            if(data_config[i].uuid == rid) {
+                let root = data_config[i].sub;
+                for (let j = root.length - 1; j >= 0; j--) {
+                    if(root[j].uuid == pid) {
+                        let parent = root[j].sub;
+                        for (let n = parent.length - 1; n >= 0; n--) {
+                            if(parent[n].uuid == sid) {
+                                name = parent[n].name;
+                                break loop;
+                            }
+                        } 
+                    }
+                }
             }
-            const HEADER = tpl.tmplate_0.length;
-            const FOOTER = tpl.tmplate_1.length;
-            const ctx_len = content.length - HEADER - FOOTER;
-            const ctx = content.substr(HEADER, ctx_len);
-            res.send({status:'ok', data: ctx, name:name});
-        });
+        }
+    } else if (pid) {
+        file_name = 'pages/'+ pid + '.html';
+        loop: for (let i = data_config.length - 1; i >= 0; i--) {
+            if(data_config[i].uuid == rid) {
+                let root = data_config[i].sub;
+                for (let j = root.length - 1; j >= 0; j--) {
+                    if(root[j].uuid == pid) {
+                        name = root[j].name;
+                        break loop;
+                    }
+                }
+            }
+        }
+    } else {
+        res.send({status: 'err', data:"params error."});
     }
+    fs.readFile(file_name, 'utf8', (err, content) => {
+        if (err) {
+            res.send({
+                status: 'error',
+                data: "Error: file can't read or not exist."
+            });
+            // throw err;
+            return;
+        }
+        const HEADER = tpl.tmplate_0.length;
+        const FOOTER = tpl.tmplate_1.length;
+        const ctx_len = content.length - HEADER - FOOTER;
+        const ctx = content.substr(HEADER, ctx_len);
+        res.send({status:'ok', data: ctx, name:name});
+    });
 });
 
+app.post('/save_content/modify', function(req, res) {
+    const rid = req.query.rid;
+    const pid = req.query.pid;
+    const sid = req.query.sid;
+    const cid = req.query.cid;
+    if (rid == null || pid == null) {
+        res.send({status:'err', data:"params error."});
+        return;
+    }
+    let file_name;
+    if(cid){
+        file_name = 'pages/'+ cid + '.html';
+        loop: for (let i = data_config.length - 1; i >= 0; i--) {
+            if(data_config[i].uuid == rid) {
+                let root = data_config[i].sub;
+                for (let j = root.length - 1; j >= 0; j--) {
+                    if(root[j].uuid == pid) {
+                        let parent = root[j].sub;
+                        for (let n = parent.length - 1; n >= 0; n--) {
+                            if(parent[n].uuid == sid) {
+                                let son = parent[n].sub;
+                                for (let m = son.length - 1; m >= 0; m--) {
+                                    if(son[m].uuid == cid) {
+                                        son[m].name = req.body.title;
+                                        break loop;
+                                    }
+                                }
+                            }
+                        } 
+                    }
+                }
+            }
+        }
+    }else if (sid) {
+        file_name = 'pages/'+ sid + '.html';
+        loop: for (let i = data_config.length - 1; i >= 0; i--) {
+            if(data_config[i].uuid == rid) {
+                let root = data_config[i].sub;
+                for (let j = root.length - 1; j >= 0; j--) {
+                    if(root[j].uuid == pid) {
+                        let parent = root[j].sub;
+                        for (let n = parent.length - 1; n >= 0; n--) {
+                            if(parent[n].uuid == sid) {
+                                parent[n].name = req.body.title;
+                                break loop;
+                            }
+                        } 
+                    }
+                }
+            }
+        }
+    } else if (pid) {
+        file_name = 'pages/'+ pid + '.html';
+        loop: for (let i = data_config.length - 1; i >= 0; i--) {
+            if(data_config[i].uuid == rid) {
+                let root = data_config[i].sub;
+                for (let j = root.length - 1; j >= 0; j--) {
+                    if(root[j].uuid == pid) {
+                        root[j].name = req.body.title; 
+                        break loop;
+                    }
+                }
+            }
+        }
+    } else {
+        res.send({status: 'err', data:"params error."});
+    }
+    const content_html = req.body.data;
+    fs.writeFile(file_name, tpl.tmplate_0 + content_html + tpl.tmplate_1, (err) => {
+        if (err) throw err;
+        console.log('The html file has been saved!');
+        write_config(()=>{
+            res.send({status: 'ok'});
+        });
+    });
+
+});
 
 app.post('/upload_image', function (req, res) {
 

@@ -100,11 +100,9 @@
         }
         save_btn.innerHTML = "Saving";
         save_btn.setAttribute('disabled', 'disabled');
-        let parid=GetQueryString('pid');
-        let cid=GetQueryString('cid');
-        $.ajax({url: '/save_content/modify',
+        $.ajax({url: '/save_content/modify' + location.search,
             type: 'POST',
-            data: { data: content, title: title.value, pid: parid, uuid: cid},
+            data: { data: content, title: title.value},
             success: function(data) {
                 save_btn.removeAttribute('disabled');
                 save_btn.innerHTML = "Save";
@@ -117,12 +115,10 @@
     }
 
     function init() {
-        let pid=GetQueryString('pid');
-        let cid=GetQueryString('cid');
         let content = document.querySelector("div.fr-element.fr-view");
-        $.ajax({url: '/modify?token=' + get_token(),
+        $.ajax({url: '/modify' + location.search,
             type: 'POST',
-            data: {pid:pid, cid:cid},
+            data: {},
             success: function(res) {
                 // console.log('modify', res.data);
                 if (res.status == 'ok') {
