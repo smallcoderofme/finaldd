@@ -10,7 +10,8 @@ const uuidv4 = require('uuid/v4');
 const config = require('./config');
 
 const tpl = require('./template');
-
+const HEADER = tpl.tmplate_0.length;
+const FOOTER = tpl.tmplate_1.length;
 app.use(express.static(__dirname+'/'));
 // app.use('/node_modules', express.static(path.join(__dirname, '/node_modules')));
 app.use(bodyParser.json(config.json_limit));
@@ -622,8 +623,6 @@ app.post('/modify', function (req, res) {
             // throw err;
             return;
         }
-        const HEADER = tpl.tmplate_0.length;
-        const FOOTER = tpl.tmplate_1.length;
         const ctx_len = content.length - HEADER - FOOTER;
         const ctx = content.substr(HEADER, ctx_len);
         res.send({status:'ok', data: ctx, name:name});
