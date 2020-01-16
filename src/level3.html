@@ -19,7 +19,7 @@
         if (size.width < size.height) {
             document.querySelector('#background_img').setAttribute('src', '../../../assets/sbg.jpg')
         }
-        const url = 'http://127.0.0.1:3000/json/'+location.pathname.substr(6);
+        const url = location.origin +'/json/'+location.pathname.substr(6);
         $.ajax({url: url,
             type: 'GET',
             success: function(res) {
