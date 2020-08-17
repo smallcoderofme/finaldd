@@ -54,16 +54,19 @@ app.all('*', function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-    res.header("X-Powered-By", 'v3.2.1')
-    // res.header("Content-Type", "application/json;charset=utf-8");
+    res.header("X-Powered-By", 'v3.2.1');
+    // res.header('Content-Type', 'text/html; charset=utf-8');
+    res.header("Content-Type", "application/json;charset=utf-8");
     next();
 });
 
 app.get('/', (req, res) => {
-   res.sendFile(__dirname + '/src/index.html');
+    res.header('Content-Type', 'text/html; charset=utf-8');
+    res.sendFile(__dirname + '/src/index.html');
 });
 
 app.get('/menu', (req, res) => {
+    res.header('Content-Type', 'text/html; charset=utf-8');
     res.sendFile(__dirname + '/src/index.html');
 });
 
@@ -72,6 +75,7 @@ app.get('/list', (req, res) => {
 });
 
 app.get('/menu/:uuid', function(req, res) {
+    res.header('Content-Type', 'text/html; charset=utf-8');
     if (req.params.uuid && verify_main_uuid(req.params.uuid)){
         res.sendFile(__dirname + '/src/level2.html');
     } else {
@@ -81,6 +85,7 @@ app.get('/menu/:uuid', function(req, res) {
     }
 });
 app.get('/admin', function (req, res) {
+    res.header('Content-Type', 'text/html; charset=utf-8');
     res.sendFile(__dirname + '/src/login.html');
 });
 
@@ -342,6 +347,7 @@ app.post('/auth/login', function (req, res) {
 });
 
 app.get('/edit', function(req, res) {
+    res.header('Content-Type', 'text/html; charset=utf-8');
     if (req.query.token) {
         if (!verify_token(req.query.token)) {
             res.sendFile(__dirname + '/src/login.html');
@@ -354,6 +360,7 @@ app.get('/edit', function(req, res) {
 });
 
 app.get('/create_content', function (req, res) {
+    res.header('Content-Type', 'text/html; charset=utf-8');
     if (!req.query.token) {
         res.sendFile(__dirname + '/src/login.html');
     }
@@ -432,19 +439,23 @@ app.post('/save_content', function(req, res) {
     });
 });
 app.get('/menu/:uuid/content/:cid', function(req, res) {
+    res.header('Content-Type', 'text/html; charset=utf-8');
     // res.send({status:'ok', data:{pid: req.params.uuid, cid:req.params.cid}});
     res.sendFile(__dirname + '/pages/' + req.params.cid + '.html');
 });
 /**----------------------------------------------------------*/
 app.get('/menu/:oid/level2/:tid', function(req, res) {
+    res.header('Content-Type', 'text/html; charset=utf-8');
     res.sendFile(__dirname + '/src/level3.html');
 });
 
 app.get('/menu/:oid/level2/:tid/c/:cid', function(req, res) {
-     res.sendFile(__dirname + '/pages/' + req.params.cid + '.html');
+    res.header('Content-Type', 'text/html; charset=utf-8');
+    res.sendFile(__dirname + '/pages/' + req.params.cid + '.html');
 });
 
 app.get('/menu/:oid/level2/:tid/level3/:sid/c/:cid', function(req, res) {
+    res.header('Content-Type', 'text/html; charset=utf-8');
     res.sendFile(__dirname + '/pages/' + req.params.cid + '.html');
 });
 
@@ -475,6 +486,7 @@ app.get('/json/:oid/level2/:tid', function(req, res) {
 // });
 
 app.get('/menu/:oid/level2/:tid/level3/:sid', function(req, res) {
+    res.header('Content-Type', 'text/html; charset=utf-8');
     res.sendFile(__dirname + '/src/level4.html');
 });
 
@@ -536,6 +548,7 @@ app.post('/delete/:pid/:cid', function (req, res) {
     })
 });
 app.get('/modify', function (req, res) {
+    res.header('Content-Type', 'text/html; charset=utf-8');
     if (!req.query.token) {
         res.sendFile(__dirname + '/src/login.html');
     }
@@ -547,6 +560,7 @@ app.get('/modify', function (req, res) {
 });
 app.post('/modify', function (req, res) {
     if (!req.query.token) {
+        res.header('Content-Type', 'text/html; charset=utf-8');
         res.sendFile(__dirname + '/src/login.html');
     }
 
