@@ -1,4 +1,35 @@
-const tpl_next = `</div></div></div></div><div class="col-md-2"></div></div><script src="../../../src/ctx.js"></script></body></html>`;
+const tpl_next = `</div></div></div></div><div class="col-md-2"></div></div><script>
+  function list() {
+    let index = location.href.indexOf('/content');
+    let back = location.href.substring(0,index);
+    window.location.href = back;
+  }
+  $(function () {
+      let size = getScreenState();
+      if (size.width < size.height) {
+          document.querySelector('#background_img').setAttribute('src', '../../../assets/sbg.jpg')
+      }
+  });
+  function getScreenState() {
+      if(window.innerHeight !== undefined){
+          return {
+              "width": window.innerWidth,
+              "height": window.innerHeight
+          }
+
+      }else if(document.compatMode === "CSS1Compat"){
+          return {
+              "width": document.documentElement.clientWidth,
+              "height": document.documentElement.clientHeight
+          }
+      }else{
+          return {
+              "width": document.body.clientWidth,
+              "height": document.body.clientHeight
+          }
+      }
+  }
+</script></body></html>`;
 const tpl_pre = `<!DOCTYPE html><html><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0">
@@ -54,7 +85,95 @@ const tpl_pre = `<!DOCTYPE html><html><head>
   <script src="/bower_components/froala-wysiwyg-editor/js/plugins/video.min.js"></script>
   <script src="/bower_components/froala-wysiwyg-editor/js/plugins/edit_in_popup.min.js"></script>
   <!-- End Froala -->
-  <link rel="stylesheet" href="../../../style.css">
+  <style>
+    .Site {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .Site-content {
+        flex: 1;
+    }
+
+    video {
+        margin: 10px;
+    }
+
+    #mask {
+        background: white;
+        width: auto;
+        height: 100%;
+    }
+
+    .blank {
+        min-height: 5rem;
+    }
+
+    .unselect {
+        user-select: none;
+    }
+    body {
+        padding: 20px;
+        overflow: hidden;
+    }
+
+    .sample {
+        padding-bottom: 50px;
+        margin-left: 20px;
+        margin-right: 20px;
+        /*border-top: 1px solid lightgray;*/
+    }
+
+    .manual {
+        margin-bottom: 20px;
+    }
+
+    .content {
+        height: 100vh;
+    }
+
+    .point {
+        cursor: pointer;
+    }
+
+    video {
+        margin: 10px;
+    }
+
+    #mask {
+        background: white;
+        width: auto;
+        height: 100%;
+    }
+    .scroll_ctx {
+        height: 100vh;
+        overflow-y: overlay;
+    }
+
+    .login-bg {
+        background-image: url("../assets/loginBg.png");
+        background-size: cover;
+    }
+
+    .img_btn {
+         background: url(../assets/btnBg.png);
+         background-size: 28rem;
+         width: 28rem;
+         height: 9.5rem;
+         border: none;
+         font-size: 3.5rem;
+     }
+
+    .img_home {
+        background: url(../assets/img_Home.png);
+        background-size: 16rem;
+        width: 16rem;
+        height: 16rem;
+        border: none;
+    }
+  </style>
 </head>
 <body>
   <script type="text/javascript">
