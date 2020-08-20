@@ -191,6 +191,7 @@ app.post('/modify_menu/:oid/level2/:pid/level3', function (req, res) {
             for (let j = temp.length - 1; j >= 0; j--) {
                 if(temp[j].uuid == pid){
                    let temp1 = temp[j].sub;
+                   if(!temp1 || temp1.length == 0) continue;
                    for (let n = temp1.length - 1; n >= 0; n--) {
                        if(temp1[n].uuid == id) {
                            temp1[n].name = tempName;
@@ -233,6 +234,7 @@ app.post('/delete_menu', function (req, res) {
     for (let i =0;i<len;i++) {
         if (data_config[i].uuid == id) {
             let del_list = data_config.splice(i,1)[0].sub;
+            if(!del_list || del_list.length == 0) continue;
             for (let file of del_list) {
                 delete_file(file);
             }
@@ -255,6 +257,7 @@ app.post('/delete_menu/:rid/level/:pid', function (req, res) {
             for (let j = temp.length - 1; j >= 0; j--) {
                 if(temp[j].uuid == pid) {
                     let del_list = temp.splice(j,1)[0].sub;
+                    if(!del_list || del_list.length == 0) continue;
                     for (let file of del_list) {
                         delete_file(file);
                     }
@@ -283,6 +286,7 @@ app.post('/delete_menu/:rid/level/:pid/level2/:sid', function (req, res) {
                     for (let n = temps.length - 1; n >= 0; n--) {
                         if(temps[n].uuid == sid) {
                             let del_list = temps.splice(n,1)[0].sub;
+                            if(!del_list || del_list.length == 0) continue;
                             for (let file of del_list) {
                                 delete_file(file);
                             }
@@ -314,6 +318,7 @@ app.post('/delete_menu/:rid/level/:pid/level2/:sid/level3/:cid', function (req, 
                     for (let n = temps.length - 1; n >= 0; n--) {
                         if(temps[n].uuid == sid) {
                             let temp1 = temps[n].sub;
+                            if(!temp1 || temp1.length == 0) continue;
                             for (let m = temp1.length - 1; m >= 0; m--) {
                                 if(temp1[m].uuid == cid) {
                                     temp1.splice(m,1);

@@ -34,7 +34,7 @@
     function back() {
         location.href = location.origin;
     }
-    function  render(data) {
+    function render(data) {
         var containter = document.querySelector("div.row");
         var leng = data.length;
         var elements = '';
@@ -56,7 +56,6 @@
         // document.querySelectorAll("script").forEach(function(e){ e.parentNode.removeChild(e); });
     }
     function detail(uuid) {
-        console.log("sub menu uuid: ", uuid);
         let pid = location.pathname.substr(6);
         let select_data;
         for (let d of curr_data) {
