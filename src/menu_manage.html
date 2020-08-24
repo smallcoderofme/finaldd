@@ -13,6 +13,7 @@
 </head>
 <body class="Site">
     <img id="background_img" src="../assets/bg.jpg" style="position:absolute; top: 0; left: 0; width: 100%; height: 100%;z-index: -99999;">
+    <div><button type="button" class="btn btn-success btn-sm" onclick="back();">返回主页</button></div>
     <div class="row Site-content">
         <div class="col-md-12 scroll_ctx">
         </div>
@@ -150,7 +151,9 @@
             });
             $('#delete_sub').modal('show');
         }
-
+        function back() {
+            location.href = location.origin;
+        }
         function openModify(index = null, pi = null, si = null, ci = null, uuid = null) {
             document.querySelector('#modify_title').innerHTML="修改菜单名称";
             document.querySelector('#modify_label').innerHTML="新的菜单名称";
@@ -471,19 +474,19 @@
                 onclick="toggle2(`+ i + `,` + index + `,` + '\'' + currData[i]['uuid'] + '\'' +`)">
                 <span id="sicon`+i +`"><i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i></span>
                 `+ currData[i].name +
-                `</span><i class="fa fa-edit ml-5 pull-right" 
+                `</span><i data-toggle="tooltip" title="编辑" class="fa fa-edit ml-5 pull-right" 
                 onclick="openModify(`+ index + `,`+ i +`,`+ null +`,`+ null + `,'`+ currData[i]['uuid'] +`');"></i>
-                <i class="fa fa-trash-o ml-5 pull-right" onclick="openDelete(`+ index + `,` + i +`);"></i>
-                <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true" onclick="create_sub(`+index+`,`+i+`);"></i>
-                <i class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="plus_content(`+ index +`,`+i+`);"></i>
+                <i data-toggle="tooltip" title="删除" class="fa fa-trash-o ml-5 pull-right" onclick="openDelete(`+ index + `,` + i +`);"></i>
+                <i data-toggle="tooltip" title="添加文章" class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true" onclick="create_sub(`+index+`,`+i+`);"></i>
+                <i data-toggle="tooltip" title="添加子菜单" class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="plus_content(`+ index +`,`+i+`);"></i>
                 <div id="sub_child_menu`+ i +`" data-id="`+ currData[i]['uuid']+`"></div></li>
                 </div>`;
                 } else {
                      subELe += `<div class="mb-2 mt-2 pt-2 ml-5 point border-top border-dark">
                     <span class="h5 text-primary"><a href="/menu/`+data[index].uuid+`/content/`+ currData[i]['uuid']+`">`+ currData[i].name +
                     `</a></span>
-                    <i class="fa fa-edit ml-5 pull-right" onclick="modify_content(`+ index + `,`  + i + `);"></i>
-                    <i class="fa fa-trash-o ml-5 pull-right" onclick="delete_content(`+ index + `,'` + currData[i]['uuid'] + `');"></i>
+                    <i data-toggle="tooltip" title="编辑" class="fa fa-edit ml-5 pull-right" onclick="modify_content(`+ index + `,`  + i + `);"></i>
+                    <i data-toggle="tooltip" title="删除" class="fa fa-trash-o ml-5 pull-right" onclick="delete_content(`+ index + `,'` + currData[i]['uuid'] + `');"></i>
                     </div>`;
                 }
             }
@@ -516,17 +519,17 @@
                     <span class="h5 text-primary" onclick="toggle3(`+j+`,`+ i +`,`+ index +`,'`+ temp.uuid +`');">
                     <span id="ssicon`+  j + i +`">
                     <i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i></span>`+ temp.name +`</span>
-                    <i class="fa fa-edit ml-5 pull-right" onclick="openModify(`+ index +`,`+ i +`,`+ j + `,`+ null +`,'`+ temp['uuid'] +`');"></i>
-                    <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" 
+                    <i data-toggle="tooltip" title="编辑" class="fa fa-edit ml-5 pull-right" onclick="openModify(`+ index +`,`+ i +`,`+ j + `,`+ null +`,'`+ temp['uuid'] +`');"></i>
+                    <i data-toggle="tooltip" title="删除" class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" 
                     onclick="openDelete(`+ index + `,`+i + `,`+ j + `,`+ null + `,'`+ temp.uuid + `');"></i>
-                    <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true" onclick="create_sub(`+index +`,`+i+`,`+j+`);"></i>
+                    <i data-toggle="tooltip" title="添加文章" class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true" onclick="create_sub(`+index +`,`+i+`,`+j+`);"></i>
                     <div id="ssub_child_menu`+ j + i +`" data-id="`+ temp['uuid']+`"></div>
                     </div>`;
                 } else {
                     ele += `<div class="mb-2 mt-2 ml-5 pt-2 point border-top border-dark"><span class="h5 text-primary">
                     <a href="/menu/`+data[index].uuid+`/level2/`+uuid+`/c/`+ temp.uuid +`">`+ temp.name +`</a></span>
-                    <i class="fa fa-edit ml-5 pull-right" onclick="modify_content(`+ index +`,`+ i +`,`+ j + `);"></i>
-                    <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" 
+                    <i data-toggle="tooltip" title="编辑" class="fa fa-edit ml-5 pull-right" onclick="modify_content(`+ index +`,`+ i +`,`+ j + `);"></i>
+                    <i data-toggle="tooltip" title="删除" class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" 
                     onclick="openDelete(`+ index +`,`+ i + `,`+ j + `,`+ null +`,'`+ temp['uuid'] +`');"></i>
                     </div>` 
                 }
@@ -562,8 +565,8 @@
                     `/level3/`+ data[index].sub[pi].sub[ci].uuid +
                     `/c/`+temp.uuid+`">`+ temp.name +`</a>
                     </span>
-                    <i class="fa fa-edit ml-5 pull-right" aria-hidden="true" onclick="modify_content(`+ index +`,`+ pi +`,`+ ci +`,`+ j + `);"></i>
-                    <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+index+`,`+pi+`,`+ci+`,`+j+ `,'`+ temp.uuid + `');"></i>
+                    <i data-toggle="tooltip" title="编辑" class="fa fa-edit ml-5 pull-right" aria-hidden="true" onclick="modify_content(`+ index +`,`+ pi +`,`+ ci +`,`+ j + `);"></i>
+                    <i data-toggle="tooltip" title="删除" class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+index+`,`+pi+`,`+ci+`,`+j+ `,'`+ temp.uuid + `');"></i>
                 </div>` 
             }
             document.querySelector(icon).innerHTML = '<i class="fa fa-minus-square-o mr-3" aria-hidden="true"></i>';
@@ -759,10 +762,10 @@
                 elements += `<li id="menu`+ i +`" class="list-group-item unselect list-group-item-primary point">
                                 <span class="ml-2 mr-2 h4" onclick="toggle(`+ i +`);"><span id="icon`+i +`">
                                 <i class="fa fa-plus-square-o mr-3" aria-hidden="true"></i></span>`+ data[i].name + `</span>
-                                <i class="fa fa-edit ml-5 pull-right" onclick="openModify(`+i+`,`+null+`,`+null+`,`+null+`,'`+data[i]['uuid']+`');"></i>
-                                <i class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+ i +`);"></i>
-                                <i class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true" onclick="create_sub(`+ i +`);"></i>
-                                <i class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="plus_content(`+ i +`);"></i>
+                                <i data-toggle="tooltip" title="编辑" class="fa fa-edit ml-5 pull-right" onclick="openModify(`+i+`,`+null+`,`+null+`,`+null+`,'`+data[i]['uuid']+`');"></i>
+                                <i data-toggle="tooltip" title="删除" class="fa fa-trash-o ml-5 pull-right" aria-hidden="true" onclick="openDelete(`+ i +`);"></i>
+                                <i data-toggle="tooltip" title="添加文章" class="fa fa-file-text-o ml-5 pull-right" aria-hidden="true" onclick="create_sub(`+ i +`);"></i>
+                                <i data-toggle="tooltip" title="添加子菜单" class="fa fa-plus ml-5 pull-right" aria-hidden="true" onclick="plus_content(`+ i +`);"></i>
                                 <div id="sub_menu`+ i +`" data-id="`+ data[i]['uuid'] +`"></div></li>`;
             }
             elements += '<li class="h4 list-group-item unselect list-group-item-primary point">' +
