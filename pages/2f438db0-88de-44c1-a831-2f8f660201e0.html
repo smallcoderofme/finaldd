@@ -1,37 +1,4 @@
-const tpl_next = `</div></div></div></div><div class="col-md-2"></div></div><script>
-  function list() {
-    // let index = location.href.indexOf('/content');
-    // let back = location.href.substring(0,index);
-    // window.location.href = back;
-    history.back();
-  }
-  $(function () {
-      let size = getScreenState();
-      if (size.width < size.height) {
-          document.querySelector('#background_img').setAttribute('src', '../../../assets/sbg.jpg')
-      }
-  });
-  function getScreenState() {
-      if(window.innerHeight !== undefined){
-          return {
-              "width": window.innerWidth,
-              "height": window.innerHeight
-          }
-
-      }else if(document.compatMode === "CSS1Compat"){
-          return {
-              "width": document.documentElement.clientWidth,
-              "height": document.documentElement.clientHeight
-          }
-      }else{
-          return {
-              "width": document.body.clientWidth,
-              "height": document.body.clientHeight
-          }
-      }
-  }
-</script></body></html>`;
-const tpl_pre = `<!DOCTYPE html><html><head>
+<!DOCTYPE html><html><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0">
   <script src="/bower_components/jquery/dist/jquery.min.js"></script>
@@ -189,7 +156,36 @@ const tpl_pre = `<!DOCTYPE html><html><head>
     <div class="col-md-8 scroll_ctx">
       <div class="fr-box fr-basic fr-top" role="application">
         <div class="fr-wrapper" style="border: 1px solid #CCCCCC;" dir="auto">
-        <div class="fr-element fr-view" dir="auto" aria-disabled="false" spellcheck="true">`;
+        <div class="fr-element fr-view" dir="auto" aria-disabled="false" spellcheck="true"><p><em>史蒂芬森分散对方&nbsp;三分散对方&nbsp;</em><br></p></div></div></div></div><div class="col-md-2"></div></div><script>
+  function list() {
+    // let index = location.href.indexOf('/content');
+    // let back = location.href.substring(0,index);
+    // window.location.href = back;
+    history.back();
+  }
+  $(function () {
+      let size = getScreenState();
+      if (size.width < size.height) {
+          document.querySelector('#background_img').setAttribute('src', '../../../assets/sbg.jpg')
+      }
+  });
+  function getScreenState() {
+      if(window.innerHeight !== undefined){
+          return {
+              "width": window.innerWidth,
+              "height": window.innerHeight
+          }
 
-exports.tmplate_0 = tpl_pre;
-exports.tmplate_1 = tpl_next;
+      }else if(document.compatMode === "CSS1Compat"){
+          return {
+              "width": document.documentElement.clientWidth,
+              "height": document.documentElement.clientHeight
+          }
+      }else{
+          return {
+              "width": document.body.clientWidth,
+              "height": document.body.clientHeight
+          }
+      }
+  }
+</script></body></html>
